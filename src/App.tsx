@@ -65,9 +65,14 @@ function App() {
             <Box
               sx={{
                 flex: 1,
-                ml: { md: isSidebarOpen ? '240px' : 0 },
+                ml: { md: isSidebarOpen ? '260px' : 0 },
                 minHeight: { xs: 'calc(100vh - 64px)', md: 'calc(100vh - 64px)' },
                 overflow: 'auto',
+                '&::-webkit-scrollbar': {
+                  display: 'none'
+                },
+                scrollbarWidth: 'none', // Firefox
+                msOverflowStyle: 'none', // IE/Edge
                 transition: theme => theme.transitions.create('margin-left', {
                   duration: theme.transitions.duration.standard,
                   easing: theme.transitions.easing.easeInOut,

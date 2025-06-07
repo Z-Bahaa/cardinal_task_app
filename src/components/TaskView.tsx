@@ -291,7 +291,15 @@ export function TaskView({ selectedListId }: TaskViewProps) {
   }
 
   return (
-    <Box>
+    <Box sx={{ 
+      height: '100%',
+      overflow: 'auto',
+      '&::-webkit-scrollbar': {
+        display: 'none'
+      },
+      scrollbarWidth: 'none', // Firefox
+      msOverflowStyle: 'none' // IE/Edge
+    }}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
         <Typography variant="h5" sx={{ flex: 1 }}>
           {selectedList?.title}

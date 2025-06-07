@@ -109,7 +109,15 @@ export function TaskLists({ selectedListId, onSelectList }: TaskListsProps) {
           <AddIcon />
         </IconButton>
       </Box>
-      <List sx={{ flex: 1, overflow: 'auto' }}>
+      <List sx={{ 
+        flex: 1, 
+        overflow: 'auto',
+        '&::-webkit-scrollbar': {
+          display: 'none'
+        },
+        scrollbarWidth: 'none', // Firefox
+        msOverflowStyle: 'none' // IE/Edge
+      }}>
         {state.lists.map((list) => (
           <ListItem
             key={list.id}
