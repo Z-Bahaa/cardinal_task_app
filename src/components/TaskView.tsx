@@ -160,6 +160,7 @@ function TaskItem({ task, onUpdate, onDelete }: {
   const [isEditing, setIsEditing] = useState(false);
   const [isSubtaskDialogOpen, setIsSubtaskDialogOpen] = useState(false);
   const [editingSubtask, setEditingSubtask] = useState<Subtask | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const { createSubtask, updateSubtask, deleteSubtask } = useApp();
 
   const handleTaskCompletion = (completed: boolean) => {
@@ -186,6 +187,14 @@ function TaskItem({ task, onUpdate, onDelete }: {
 
   const handleStartEditSubtask = (subtask: Subtask) => {
     setEditingSubtask(subtask);
+  };
+
+  const handleDeleteClick = () => {
+    if (task.subtasks.length > 0) {
+      setIsDeleteDialogOpen(true);
+    } else {
+      onDelete();
+    }
   };
 
   return (
@@ -248,7 +257,7 @@ function TaskItem({ task, onUpdate, onDelete }: {
             </IconButton>
             <IconButton
               size="small"
-              onClick={onDelete}
+              onClick={handleDeleteClick}
             >
               <DeleteIcon />
             </IconButton>
@@ -340,6 +349,37 @@ function TaskItem({ task, onUpdate, onDelete }: {
           </Box>
         </Collapse>
       </CardContent>
+
+      {/* Delete Task Confirmation Dialog */}
+      <Dialog
+        open={isDeleteDialogOpen}
+        onClose={() => setIsDeleteDialogOpen(false)}
+        maxWidth="xs"
+        fullWidth
+      >
+        <DialogTitle>Delete Task with Subtasks</DialogTitle>
+        <DialogContent>
+          <Typography>
+            This task has {task.subtasks.length} subtask{task.subtasks.length === 1 ? '' : 's'}. 
+            Deleting it will also delete all its subtasks. This action cannot be undone.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setIsDeleteDialogOpen(false)}>
+            Cancel
+          </Button>
+          <Button 
+            onClick={() => {
+              onDelete();
+              setIsDeleteDialogOpen(false);
+            }}
+            variant="contained"
+            color="error"
+          >
+            Delete Task
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Card>
   );
 }
