@@ -12,7 +12,6 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  Divider,
 } from '@mui/material';
 import {
   Add as AddIcon,
