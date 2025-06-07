@@ -17,8 +17,6 @@ import {
   Add as AddIcon,
   Edit as EditIcon,
   Delete as DeleteIcon,
-  Check as CheckIcon,
-  Close as CloseIcon,
 } from '@mui/icons-material';
 import { useState } from 'react';
 import { useApp } from '../context/AppContext';
@@ -31,6 +29,7 @@ interface TaskListsProps {
 export function TaskLists({ selectedListId, onSelectList }: TaskListsProps) {
   const { state, createList, updateList, deleteList } = useApp();
   const [isCreating, setIsCreating] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   const [newListTitle, setNewListTitle] = useState('');
   const [editingListId, setEditingListId] = useState<string | null>(null);
   const [editingTitle, setEditingTitle] = useState('');
@@ -46,19 +45,22 @@ export function TaskLists({ selectedListId, onSelectList }: TaskListsProps) {
   const handleStartEdit = (listId: string, currentTitle: string) => {
     setEditingListId(listId);
     setEditingTitle(currentTitle);
+    setIsEditing(true);
   };
 
-  const handleSaveEdit = (listId: string) => {
-    if (editingTitle.trim()) {
-      updateList(listId, editingTitle.trim());
+  const handleSaveEdit = () => {
+    if (editingTitle.trim() && editingListId) {
+      updateList(editingListId, editingTitle.trim());
       setEditingListId(null);
       setEditingTitle('');
+      setIsEditing(false);
     }
   };
 
   const handleCancelEdit = () => {
     setEditingListId(null);
     setEditingTitle('');
+    setIsEditing(false);
   };
 
   return (
@@ -82,76 +84,41 @@ export function TaskLists({ selectedListId, onSelectList }: TaskListsProps) {
             disablePadding
             sx={{ mb: 1 }}
             secondaryAction={
-              editingListId === list.id ? (
-                <Box sx={{ display: 'flex', gap: 0.5 }}>
-                  <IconButton
-                    edge="end"
-                    size="small"
-                    onClick={() => handleSaveEdit(list.id)}
-                  >
-                    <CheckIcon />
-                  </IconButton>
-                  <IconButton
-                    edge="end"
-                    size="small"
-                    onClick={handleCancelEdit}
-                  >
-                    <CloseIcon />
-                  </IconButton>
-                </Box>
-              ) : (
-                <Box sx={{ display: 'flex', gap: 0.5 }}>
-                  <IconButton
-                    edge="end"
-                    size="small"
-                    onClick={() => handleStartEdit(list.id, list.title)}
-                  >
-                    <EditIcon />
-                  </IconButton>
-                  <IconButton
-                    edge="end"
-                    size="small"
-                    onClick={() => deleteList(list.id)}
-                  >
-                    <DeleteIcon />
-                  </IconButton>
-                </Box>
-              )
+              <Box sx={{ display: 'flex', gap: 0.5 }}>
+                <IconButton
+                  edge="end"
+                  size="small"
+                  onClick={() => handleStartEdit(list.id, list.title)}
+                >
+                  <EditIcon />
+                </IconButton>
+                <IconButton
+                  edge="end"
+                  size="small"
+                  onClick={() => deleteList(list.id)}
+                >
+                  <DeleteIcon />
+                </IconButton>
+              </Box>
             }
           >
-            {editingListId === list.id ? (
-              <TextField
-                fullWidth
-                size="small"
-                value={editingTitle}
-                onChange={(e) => setEditingTitle(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    handleSaveEdit(list.id);
-                  } else if (e.key === 'Escape') {
-                    handleCancelEdit();
-                  }
-                }}
-                autoFocus
-              />
-            ) : (
-              <ListItemButton
-                selected={selectedListId === list.id}
-                onClick={() => onSelectList(list.id)}
-                sx={{
-                  borderRadius: 1,
-                  '&.Mui-selected': {
-                    bgcolor: 'action.selected',
-                  },
-                }}
-              >
-                <ListItemText primary={list.title} />
-              </ListItemButton>
-            )}
+            <ListItemButton
+              selected={selectedListId === list.id}
+              onClick={() => onSelectList(list.id)}
+              sx={{
+                borderRadius: 1,
+                '&.Mui-selected': {
+                  bgcolor: 'action.selected',
+                },
+              }}
+            >
+              <ListItemText primary={list.title} />
+            </ListItemButton>
           </ListItem>
         ))}
       </List>
 
+      {/* Create List Dialog */}
       <Dialog 
         open={isCreating} 
         onClose={() => {
@@ -195,6 +162,45 @@ export function TaskLists({ selectedListId, onSelectList }: TaskListsProps) {
             disabled={!newListTitle.trim()}
           >
             Create
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Edit List Dialog */}
+      <Dialog 
+        open={isEditing} 
+        onClose={handleCancelEdit}
+        maxWidth="xs"
+        fullWidth
+      >
+        <DialogTitle>Edit List</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            fullWidth
+            label="List Name"
+            value={editingTitle}
+            onChange={(e) => setEditingTitle(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && editingTitle.trim()) {
+                handleSaveEdit();
+              } else if (e.key === 'Escape') {
+                handleCancelEdit();
+              }
+            }}
+            sx={{ mt: 1 }}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCancelEdit}>
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleSaveEdit}
+            variant="contained"
+            disabled={!editingTitle.trim()}
+          >
+            Save
           </Button>
         </DialogActions>
       </Dialog>
