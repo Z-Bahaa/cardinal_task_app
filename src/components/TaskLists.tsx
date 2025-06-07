@@ -30,6 +30,8 @@ export function TaskLists({ selectedListId, onSelectList }: TaskListsProps) {
   const { state, createList, updateList, deleteList } = useApp();
   const [isCreating, setIsCreating] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [listToDelete, setListToDelete] = useState<{ id: string; title: string; taskCount: number } | null>(null);
   const [newListTitle, setNewListTitle] = useState('');
   const [editingListId, setEditingListId] = useState<string | null>(null);
   const [editingTitle, setEditingTitle] = useState('');
@@ -61,6 +63,36 @@ export function TaskLists({ selectedListId, onSelectList }: TaskListsProps) {
     setEditingListId(null);
     setEditingTitle('');
     setIsEditing(false);
+  };
+
+  const handleStartDelete = (listId: string, listTitle: string) => {
+    const taskCount = state.tasks.filter(task => task.listId === listId).length;
+    if (taskCount > 0) {
+      setListToDelete({ id: listId, title: listTitle, taskCount });
+      setIsDeleting(true);
+    } else {
+      // Delete immediately if no tasks
+      deleteList(listId);
+      if (selectedListId === listId) {
+        onSelectList('');
+      }
+    }
+  };
+
+  const handleConfirmDelete = () => {
+    if (listToDelete) {
+      deleteList(listToDelete.id);
+      if (selectedListId === listToDelete.id) {
+        onSelectList('');
+      }
+      setListToDelete(null);
+      setIsDeleting(false);
+    }
+  };
+
+  const handleCancelDelete = () => {
+    setListToDelete(null);
+    setIsDeleting(false);
   };
 
   return (
@@ -101,7 +133,7 @@ export function TaskLists({ selectedListId, onSelectList }: TaskListsProps) {
                 <IconButton
                   edge="end"
                   size="small"
-                  onClick={() => deleteList(list.id)}
+                  onClick={() => handleStartDelete(list.id, list.title)}
                   sx={{ 
                     padding: '3px',
                     '& .MuiSvgIcon-root': {
@@ -214,6 +246,42 @@ export function TaskLists({ selectedListId, onSelectList }: TaskListsProps) {
             disabled={!editingTitle.trim()}
           >
             Save
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Delete List Confirmation Dialog */}
+      <Dialog
+        open={isDeleting}
+        onClose={handleCancelDelete}
+        maxWidth="xs"
+        fullWidth
+      >
+        <DialogTitle>Delete List</DialogTitle>
+        <DialogContent>
+          {listToDelete && (
+            <>
+              <Typography>
+                Are you sure you want to delete "{listToDelete.title}"?
+              </Typography>
+              {listToDelete.taskCount > 0 && (
+                <Typography color="error" sx={{ mt: 1 }}>
+                  This will permanently delete all tasks in this list.
+                </Typography>
+              )}
+            </>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCancelDelete}>
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleConfirmDelete}
+            variant="contained"
+            color="error"
+          >
+            Delete
           </Button>
         </DialogActions>
       </Dialog>
