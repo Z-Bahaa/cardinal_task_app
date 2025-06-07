@@ -6,7 +6,7 @@ import { Header } from './components/Header';
 import { useState, useEffect } from 'react';
 
 export function App() {
-  const { state, createList, createTask, createSubtask } = useApp();
+  const { state, createList, createTask, createSubtask, updateTask } = useApp();
   const [selectedListId, setSelectedListId] = useState<string | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const isMobile = useMediaQuery(useTheme().breakpoints.down('md'));
@@ -42,8 +42,28 @@ export function App() {
         'Layered Task',
         'This is a layered task with subtasks. If you mark it as completed, it will mark all its subtasks as completed.'
       );
+
+      // Create completed task
+      createTask(
+        defaultListId,
+        'Completed Task',
+        'This task has been completed'
+      );
     }
   }, [state.lists, state.tasks, createTask]);
+
+  // Mark the completed task as completed after it's created
+  useEffect(() => {
+    if (state.tasks.length === 3) { // We have all three tasks
+      const completedTask = state.tasks.find(task => 
+        task.title === 'Completed Task' && 
+        !task.completed
+      );
+      if (completedTask) {
+        updateTask(completedTask.id, { completed: true });
+      }
+    }
+  }, [state.tasks, updateTask]);
 
   // Create subtasks after the layered task is created
   useEffect(() => {
