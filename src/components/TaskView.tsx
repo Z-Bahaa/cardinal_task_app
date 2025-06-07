@@ -348,6 +348,7 @@ export function TaskView({ selectedListId }: TaskViewProps) {
   const { state, createTask, updateTask, deleteTask } = useApp();
   const [isCreating, setIsCreating] = useState(false);
   const [showCompleted, setShowCompleted] = useState(false);
+  const [showActive, setShowActive] = useState(true);
   const [isDeleteAllDialogOpen, setIsDeleteAllDialogOpen] = useState(false);
 
   const tasks = state.tasks.filter((task) => task.listId === selectedListId);
@@ -355,6 +356,8 @@ export function TaskView({ selectedListId }: TaskViewProps) {
 
   const incompleteTasks = tasks.filter(task => !task.completed);
   const completedTasks = tasks.filter(task => task.completed);
+
+  const hasBothTypes = incompleteTasks.length > 0 && completedTasks.length > 0;
 
   const handleDeleteAllCompleted = () => {
     completedTasks.forEach(task => deleteTask(task.id));
@@ -393,15 +396,43 @@ export function TaskView({ selectedListId }: TaskViewProps) {
         </Button>
       </Box>
 
-      {/* Incomplete Tasks */}
-      {incompleteTasks.map((task) => (
-        <TaskItem
-          key={task.id}
-          task={task}
-          onUpdate={(updates) => updateTask(task.id, updates)}
-          onDelete={() => deleteTask(task.id)}
-        />
-      ))}
+      {/* Active Tasks Section */}
+      {incompleteTasks.length > 0 && (
+        <>
+          {hasBothTypes && (
+            <Box 
+              sx={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: 1, 
+                mb: 2,
+                cursor: 'pointer',
+                '&:hover': {
+                  opacity: 0.8
+                }
+              }}
+              onClick={() => setShowActive(!showActive)}
+            >
+              <Typography variant="h6" color="text.secondary">
+                Active ({incompleteTasks.length})
+              </Typography>
+              <IconButton size="small">
+                {showActive ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+              </IconButton>
+            </Box>
+          )}
+          <Collapse in={!hasBothTypes || showActive}>
+            {incompleteTasks.map((task) => (
+              <TaskItem
+                key={task.id}
+                task={task}
+                onUpdate={(updates) => updateTask(task.id, updates)}
+                onDelete={() => deleteTask(task.id)}
+              />
+            ))}
+          </Collapse>
+        </>
+      )}
 
       {/* Completed Tasks Section */}
       {completedTasks.length > 0 && (
