@@ -1,4 +1,4 @@
-import { AppBar, Toolbar, IconButton } from '@mui/material';
+import { AppBar, Toolbar, IconButton, Typography, Box } from '@mui/material';
 import { Menu as MenuIcon } from '@mui/icons-material';
 
 interface HeaderProps {
@@ -35,6 +35,39 @@ export function Header({ onMenuClick }: HeaderProps) {
         >
           <MenuIcon />
         </IconButton>
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 0.5,
+          }}
+        >
+          <Box
+            component="img"
+            src="/cardinal-white.svg"
+            alt="Cardinal Logo"
+            sx={{
+              height: 30,
+              width: 'auto',
+              ml: 1,
+            }}
+          />
+          <Typography
+            variant="h6"
+            sx={{
+              color: 'white',
+              fontWeight: 500,
+              letterSpacing: '-0.02em',
+              ml: 0.25, // 2px equivalent
+              display: 'flex',
+              alignItems: 'center',
+              mb: -0.5, // -3 units (equivalent to -24px)
+              fontSize: '1.2rem', // h6 (1.25rem) + 1px
+            }}
+          >
+            Cardinal
+          </Typography>
+        </Box>
       </Toolbar>
     </AppBar>
   );
