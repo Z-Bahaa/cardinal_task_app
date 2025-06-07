@@ -323,13 +323,15 @@ function TaskItem({ task, onUpdate, onDelete }: {
                 </Box>
               </Box>
             ))}
-            <Button
-              startIcon={<AddIcon />}
-              onClick={() => setIsSubtaskDialogOpen(true)}
-              size="small"
-            >
-              Add Subtask
-            </Button>
+            {!task.completed && (
+              <Button
+                startIcon={<AddIcon />}
+                onClick={() => setIsSubtaskDialogOpen(true)}
+                size="small"
+              >
+                Add Subtask
+              </Button>
+            )}
             <SubtaskDialog
               open={isSubtaskDialogOpen}
               onClose={() => setIsSubtaskDialogOpen(false)}
@@ -346,12 +348,18 @@ export function TaskView({ selectedListId }: TaskViewProps) {
   const { state, createTask, updateTask, deleteTask } = useApp();
   const [isCreating, setIsCreating] = useState(false);
   const [showCompleted, setShowCompleted] = useState(false);
+  const [isDeleteAllDialogOpen, setIsDeleteAllDialogOpen] = useState(false);
 
   const tasks = state.tasks.filter((task) => task.listId === selectedListId);
   const selectedList = state.lists.find((list) => list.id === selectedListId);
 
   const incompleteTasks = tasks.filter(task => !task.completed);
   const completedTasks = tasks.filter(task => task.completed);
+
+  const handleDeleteAllCompleted = () => {
+    completedTasks.forEach(task => deleteTask(task.id));
+    setIsDeleteAllDialogOpen(false);
+  };
 
   if (!selectedListId) {
     return (
@@ -402,22 +410,53 @@ export function TaskView({ selectedListId }: TaskViewProps) {
             sx={{ 
               display: 'flex', 
               alignItems: 'center', 
-              gap: 1, 
+              gap: 2, 
               mt: 3, 
               mb: 2,
-              cursor: 'pointer',
-              '&:hover': {
-                opacity: 0.8
-              }
             }}
-            onClick={() => setShowCompleted(!showCompleted)}
           >
-            <Typography variant="h6" color="text.secondary">
-              Completed ({completedTasks.length})
-            </Typography>
-            <IconButton size="small">
-              {showCompleted ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
-            </IconButton>
+            <Box 
+              sx={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: 1,
+                cursor: 'pointer',
+                flex: 1,
+                '&:hover': {
+                  opacity: 0.8
+                }
+              }}
+              onClick={() => setShowCompleted(!showCompleted)}
+            >
+              <Typography variant="h6" color="text.secondary">
+                Completed ({completedTasks.length})
+              </Typography>
+              <IconButton size="small">
+                {showCompleted ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+              </IconButton>
+            </Box>
+            <Button
+              variant="contained"
+              color="error"
+              size="small"
+              onClick={() => setIsDeleteAllDialogOpen(true)}
+              sx={{ 
+                minWidth: '100px',
+                bgcolor: 'error.main',
+                '&:hover': {
+                  bgcolor: 'error.dark',
+                },
+                height: '30px',
+                py: 0.5,
+                px: 1,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                lineHeight: 1
+              }}
+            >
+              Delete All
+            </Button>
           </Box>
           <Collapse in={showCompleted}>
             <Box sx={{ opacity: 0.7 }}>
@@ -442,6 +481,33 @@ export function TaskView({ selectedListId }: TaskViewProps) {
           setIsCreating(false);
         }}
       />
+
+      {/* Delete All Confirmation Dialog */}
+      <Dialog
+        open={isDeleteAllDialogOpen}
+        onClose={() => setIsDeleteAllDialogOpen(false)}
+        maxWidth="xs"
+        fullWidth
+      >
+        <DialogTitle>Delete All Completed Tasks</DialogTitle>
+        <DialogContent>
+          <Typography>
+            Are you sure you want to delete all {completedTasks.length} completed tasks? This action cannot be undone.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setIsDeleteAllDialogOpen(false)}>
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleDeleteAllCompleted}
+            variant="contained"
+            color="error"
+          >
+            Delete All
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 } 
