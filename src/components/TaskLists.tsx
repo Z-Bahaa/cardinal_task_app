@@ -82,13 +82,19 @@ export function TaskLists({ selectedListId, onSelectList }: TaskListsProps) {
           <ListItem
             key={list.id}
             disablePadding
-            sx={{ mb: 1 }}
+            sx={{ mb: 0.75 }}
             secondaryAction={
               <Box sx={{ display: 'flex', gap: 0.5 }}>
                 <IconButton
                   edge="end"
                   size="small"
                   onClick={() => handleStartEdit(list.id, list.title)}
+                  sx={{ 
+                    padding: '3px',
+                    '& .MuiSvgIcon-root': {
+                      fontSize: '1.1rem'
+                    }
+                  }}
                 >
                   <EditIcon />
                 </IconButton>
@@ -96,6 +102,12 @@ export function TaskLists({ selectedListId, onSelectList }: TaskListsProps) {
                   edge="end"
                   size="small"
                   onClick={() => deleteList(list.id)}
+                  sx={{ 
+                    padding: '3px',
+                    '& .MuiSvgIcon-root': {
+                      fontSize: '1.1rem'
+                    }
+                  }}
                 >
                   <DeleteIcon />
                 </IconButton>
@@ -107,6 +119,7 @@ export function TaskLists({ selectedListId, onSelectList }: TaskListsProps) {
               onClick={() => onSelectList(list.id)}
               sx={{
                 borderRadius: 1,
+                py: 0.75,
                 '&.Mui-selected': {
                   bgcolor: 'action.selected',
                 },
