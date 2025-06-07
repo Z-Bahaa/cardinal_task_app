@@ -5,8 +5,13 @@ import {
   ListItemButton,
   ListItemText,
   IconButton,
-  TextField,
   Typography,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  Button,
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -146,48 +151,53 @@ export function TaskLists({ selectedListId, onSelectList }: TaskListsProps) {
           </ListItem>
         ))}
       </List>
-      {isCreating && (
-        <Box sx={{ mt: 2 }}>
+
+      <Dialog 
+        open={isCreating} 
+        onClose={() => {
+          setIsCreating(false);
+          setNewListTitle('');
+        }}
+        maxWidth="xs"
+        fullWidth
+      >
+        <DialogTitle>Create New List</DialogTitle>
+        <DialogContent>
           <TextField
+            autoFocus
             fullWidth
-            size="small"
-            placeholder="New list name"
+            label="List Name"
             value={newListTitle}
             onChange={(e) => setNewListTitle(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === 'Enter') {
+              if (e.key === 'Enter' && newListTitle.trim()) {
                 handleCreateList();
               } else if (e.key === 'Escape') {
                 setIsCreating(false);
                 setNewListTitle('');
               }
             }}
-            autoFocus
-            InputProps={{
-              endAdornment: (
-                <Box sx={{ display: 'flex', gap: 0.5 }}>
-                  <IconButton
-                    size="small"
-                    onClick={handleCreateList}
-                    disabled={!newListTitle.trim()}
-                  >
-                    <CheckIcon />
-                  </IconButton>
-                  <IconButton
-                    size="small"
-                    onClick={() => {
-                      setIsCreating(false);
-                      setNewListTitle('');
-                    }}
-                  >
-                    <CloseIcon />
-                  </IconButton>
-                </Box>
-              ),
-            }}
+            sx={{ mt: 1 }}
           />
-        </Box>
-      )}
+        </DialogContent>
+        <DialogActions>
+          <Button 
+            onClick={() => {
+              setIsCreating(false);
+              setNewListTitle('');
+            }}
+          >
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleCreateList}
+            variant="contained"
+            disabled={!newListTitle.trim()}
+          >
+            Create
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 } 
