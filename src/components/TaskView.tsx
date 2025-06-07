@@ -12,8 +12,7 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  FormControlLabel,
-  Switch,
+  Divider,
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -21,10 +20,11 @@ import {
   ExpandLess as ExpandLessIcon,
   Delete as DeleteIcon,
   Edit as EditIcon,
+  KeyboardArrowDown as KeyboardArrowDownIcon,
+  KeyboardArrowUp as KeyboardArrowUpIcon,
 } from '@mui/icons-material';
 import { useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { format } from 'date-fns';
 import type { Task, Subtask } from '../types/task';
 
 interface TaskViewProps {
@@ -34,26 +34,21 @@ interface TaskViewProps {
 interface TaskDialogProps {
   open: boolean;
   onClose: () => void;
-  onSubmit: (title: string, description: string, dueDate: string | undefined) => void;
+  onSubmit: (title: string, description: string) => void;
   initialValues?: {
     title: string;
     description: string;
-    dueDate: string | undefined;
   };
 }
 
 function TaskDialog({ open, onClose, onSubmit, initialValues }: TaskDialogProps) {
   const [title, setTitle] = useState(initialValues?.title || '');
   const [description, setDescription] = useState(initialValues?.description || '');
-  const [dueDate, setDueDate] = useState(initialValues?.dueDate || '');
-  const [hasDueDate, setHasDueDate] = useState(!!initialValues?.dueDate);
 
   const handleSubmit = () => {
-    onSubmit(title, description, hasDueDate ? dueDate : undefined);
+    onSubmit(title, description);
     setTitle('');
     setDescription('');
-    setDueDate('');
-    setHasDueDate(false);
   };
 
   return (
@@ -78,30 +73,73 @@ function TaskDialog({ open, onClose, onSubmit, initialValues }: TaskDialogProps)
             value={description}
             onChange={(e) => setDescription(e.target.value)}
           />
-          <FormControlLabel
-            control={
-              <Switch
-                checked={hasDueDate}
-                onChange={(e) => setHasDueDate(e.target.checked)}
-              />
-            }
-            label="Set due date"
-          />
-          {hasDueDate && (
-            <TextField
-              label="Due Date"
-              type="datetime-local"
-              fullWidth
-              value={dueDate}
-              onChange={(e) => setDueDate(e.target.value)}
-              InputLabelProps={{ shrink: true }}
-            />
-          )}
         </Box>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
-        <Button
+        <Button onClick={onClose}>
+          Cancel
+        </Button>
+        <Button 
+          onClick={handleSubmit}
+          variant="contained"
+          disabled={!title.trim()}
+        >
+          {initialValues ? 'Save' : 'Create'}
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+}
+
+interface SubtaskDialogProps {
+  open: boolean;
+  onClose: () => void;
+  onSubmit: (title: string, description: string) => void;
+  initialValues?: {
+    title: string;
+    description: string;
+  };
+}
+
+function SubtaskDialog({ open, onClose, onSubmit, initialValues }: SubtaskDialogProps) {
+  const [title, setTitle] = useState(initialValues?.title || '');
+  const [description, setDescription] = useState(initialValues?.description || '');
+
+  const handleSubmit = () => {
+    onSubmit(title, description);
+    setTitle('');
+    setDescription('');
+  };
+
+  return (
+    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+      <DialogTitle>
+        {initialValues ? 'Edit Subtask' : 'New Subtask'}
+      </DialogTitle>
+      <DialogContent>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
+          <TextField
+            label="Title"
+            fullWidth
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            autoFocus
+          />
+          <TextField
+            label="Description"
+            fullWidth
+            multiline
+            rows={3}
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+          />
+        </Box>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose}>
+          Cancel
+        </Button>
+        <Button 
           onClick={handleSubmit}
           variant="contained"
           disabled={!title.trim()}
@@ -121,7 +159,16 @@ function TaskItem({ task, onUpdate, onDelete }: {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [isSubtaskDialogOpen, setIsSubtaskDialogOpen] = useState(false);
+  const [editingSubtask, setEditingSubtask] = useState<Subtask | null>(null);
   const { createSubtask, updateSubtask, deleteSubtask } = useApp();
+
+  const handleTaskCompletion = (completed: boolean) => {
+    onUpdate({ completed });
+    
+    task.subtasks.forEach(subtask => {
+      updateSubtask(task.id, subtask.id, { completed });
+    });
+  };
 
   const handleCreateSubtask = (title: string, description: string) => {
     createSubtask(task.id, title, description);
@@ -130,10 +177,15 @@ function TaskItem({ task, onUpdate, onDelete }: {
 
   const handleUpdateSubtask = (subtaskId: string, updates: Partial<Subtask>) => {
     updateSubtask(task.id, subtaskId, updates);
+    setEditingSubtask(null);
   };
 
   const handleDeleteSubtask = (subtaskId: string) => {
     deleteSubtask(task.id, subtaskId);
+  };
+
+  const handleStartEditSubtask = (subtask: Subtask) => {
+    setEditingSubtask(subtask);
   };
 
   return (
@@ -142,21 +194,20 @@ function TaskItem({ task, onUpdate, onDelete }: {
         <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1 }}>
           <Checkbox
             checked={task.completed}
-            onChange={(e) => onUpdate({ completed: e.target.checked })}
+            onChange={(e) => handleTaskCompletion(e.target.checked)}
           />
           <Box sx={{ flex: 1 }}>
             {isEditing ? (
               <TaskDialog
                 open={isEditing}
                 onClose={() => setIsEditing(false)}
-                onSubmit={(title, description, dueDate) => {
-                  onUpdate({ title, description, dueDate });
+                onSubmit={(title, description) => {
+                  onUpdate({ title, description });
                   setIsEditing(false);
                 }}
                 initialValues={{
                   title: task.title,
                   description: task.description || '',
-                  dueDate: task.dueDate,
                 }}
               />
             ) : (
@@ -177,15 +228,6 @@ function TaskItem({ task, onUpdate, onDelete }: {
                     sx={{ mt: 0.5 }}
                   >
                     {task.description}
-                  </Typography>
-                )}
-                {task.dueDate && (
-                  <Typography
-                    variant="caption"
-                    color="text.secondary"
-                    sx={{ display: 'block', mt: 0.5 }}
-                  >
-                    Due: {format(new Date(task.dueDate), 'MMM d, yyyy h:mm a')}
                   </Typography>
                 )}
               </>
@@ -230,21 +272,55 @@ function TaskItem({ task, onUpdate, onDelete }: {
                     handleUpdateSubtask(subtask.id, { completed: e.target.checked })
                   }
                 />
-                <Typography
-                  sx={{
-                    flex: 1,
-                    textDecoration: subtask.completed ? 'line-through' : 'none',
-                    color: subtask.completed ? 'text.secondary' : 'text.primary',
-                  }}
-                >
-                  {subtask.title}
-                </Typography>
-                <IconButton
-                  size="small"
-                  onClick={() => handleDeleteSubtask(subtask.id)}
-                >
-                  <DeleteIcon />
-                </IconButton>
+                <Box sx={{ flex: 1 }}>
+                  {editingSubtask?.id === subtask.id ? (
+                    <SubtaskDialog
+                      open={true}
+                      onClose={() => setEditingSubtask(null)}
+                      onSubmit={(title, description) => 
+                        handleUpdateSubtask(subtask.id, { title, description })
+                      }
+                      initialValues={{
+                        title: subtask.title,
+                        description: subtask.description || '',
+                      }}
+                    />
+                  ) : (
+                    <>
+                      <Typography
+                        sx={{
+                          textDecoration: subtask.completed ? 'line-through' : 'none',
+                          color: subtask.completed ? 'text.secondary' : 'text.primary',
+                        }}
+                      >
+                        {subtask.title}
+                      </Typography>
+                      {subtask.description && (
+                        <Typography
+                          variant="body2"
+                          color="text.secondary"
+                          sx={{ mt: 0.5 }}
+                        >
+                          {subtask.description}
+                        </Typography>
+                      )}
+                    </>
+                  )}
+                </Box>
+                <Box sx={{ display: 'flex', gap: 0.5 }}>
+                  <IconButton
+                    size="small"
+                    onClick={() => handleStartEditSubtask(subtask)}
+                  >
+                    <EditIcon />
+                  </IconButton>
+                  <IconButton
+                    size="small"
+                    onClick={() => handleDeleteSubtask(subtask.id)}
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                </Box>
               </Box>
             ))}
             <Button
@@ -254,7 +330,7 @@ function TaskItem({ task, onUpdate, onDelete }: {
             >
               Add Subtask
             </Button>
-            <TaskDialog
+            <SubtaskDialog
               open={isSubtaskDialogOpen}
               onClose={() => setIsSubtaskDialogOpen(false)}
               onSubmit={handleCreateSubtask}
@@ -269,9 +345,13 @@ function TaskItem({ task, onUpdate, onDelete }: {
 export function TaskView({ selectedListId }: TaskViewProps) {
   const { state, createTask, updateTask, deleteTask } = useApp();
   const [isCreating, setIsCreating] = useState(false);
+  const [showCompleted, setShowCompleted] = useState(false);
 
   const tasks = state.tasks.filter((task) => task.listId === selectedListId);
   const selectedList = state.lists.find((list) => list.id === selectedListId);
+
+  const incompleteTasks = tasks.filter(task => !task.completed);
+  const completedTasks = tasks.filter(task => task.completed);
 
   if (!selectedListId) {
     return (
@@ -291,15 +371,7 @@ export function TaskView({ selectedListId }: TaskViewProps) {
   }
 
   return (
-    <Box sx={{ 
-      height: '100%',
-      overflow: 'auto',
-      '&::-webkit-scrollbar': {
-        display: 'none'
-      },
-      scrollbarWidth: 'none', // Firefox
-      msOverflowStyle: 'none' // IE/Edge
-    }}>
+    <Box>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
         <Typography variant="h5" sx={{ flex: 1 }}>
           {selectedList?.title}
@@ -312,7 +384,9 @@ export function TaskView({ selectedListId }: TaskViewProps) {
           Add Task
         </Button>
       </Box>
-      {tasks.map((task) => (
+
+      {/* Incomplete Tasks */}
+      {incompleteTasks.map((task) => (
         <TaskItem
           key={task.id}
           task={task}
@@ -320,11 +394,51 @@ export function TaskView({ selectedListId }: TaskViewProps) {
           onDelete={() => deleteTask(task.id)}
         />
       ))}
+
+      {/* Completed Tasks Section */}
+      {completedTasks.length > 0 && (
+        <>
+          <Box 
+            sx={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: 1, 
+              mt: 3, 
+              mb: 2,
+              cursor: 'pointer',
+              '&:hover': {
+                opacity: 0.8
+              }
+            }}
+            onClick={() => setShowCompleted(!showCompleted)}
+          >
+            <Typography variant="h6" color="text.secondary">
+              Completed ({completedTasks.length})
+            </Typography>
+            <IconButton size="small">
+              {showCompleted ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+            </IconButton>
+          </Box>
+          <Collapse in={showCompleted}>
+            <Box sx={{ opacity: 0.7 }}>
+              {completedTasks.map((task) => (
+                <TaskItem
+                  key={task.id}
+                  task={task}
+                  onUpdate={(updates) => updateTask(task.id, updates)}
+                  onDelete={() => deleteTask(task.id)}
+                />
+              ))}
+            </Box>
+          </Collapse>
+        </>
+      )}
+
       <TaskDialog
         open={isCreating}
         onClose={() => setIsCreating(false)}
-        onSubmit={(title, description, dueDate) => {
-          createTask(selectedListId, title, description, dueDate);
+        onSubmit={(title, description) => {
+          createTask(selectedListId, title, description);
           setIsCreating(false);
         }}
       />
