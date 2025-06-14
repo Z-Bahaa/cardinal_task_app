@@ -13,6 +13,7 @@ import {
   TextField,
   Button,
   Collapse,
+  Checkbox,
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -26,11 +27,11 @@ import { useApp } from '../context/AppContext';
 import { TaskDialog } from './TaskView';
 
 interface TaskListsProps {
-  selectedListId: string | null;
-  onSelectList: (listId: string) => void;
+  selectedListIds?: string[];
+  onSelectLists: (listIds: string[]) => void;
 }
 
-export function TaskLists({ selectedListId, onSelectList }: TaskListsProps) {
+export function TaskLists({ selectedListIds = [], onSelectLists }: TaskListsProps) {
   const { state, createList, updateList, deleteList, createTask } = useApp();
   const [isCreating, setIsCreating] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -41,6 +42,13 @@ export function TaskLists({ selectedListId, onSelectList }: TaskListsProps) {
   const [newListTitle, setNewListTitle] = useState('');
   const [editingListId, setEditingListId] = useState<string | null>(null);
   const [editingTitle, setEditingTitle] = useState('');
+
+  const handleListSelection = (listId: string) => {
+    const newSelection = selectedListIds.includes(listId)
+      ? selectedListIds.filter(id => id !== listId)
+      : [...selectedListIds, listId];
+    onSelectLists(newSelection);
+  };
 
   const handleCreateList = () => {
     if (newListTitle.trim()) {
@@ -79,8 +87,8 @@ export function TaskLists({ selectedListId, onSelectList }: TaskListsProps) {
     } else {
       // Delete immediately if no tasks
       deleteList(listId);
-      if (selectedListId === listId) {
-        onSelectList('');
+      if (selectedListIds.includes(listId)) {
+        onSelectLists(selectedListIds.filter(id => id !== listId));
       }
     }
   };
@@ -88,8 +96,8 @@ export function TaskLists({ selectedListId, onSelectList }: TaskListsProps) {
   const handleConfirmDelete = () => {
     if (listToDelete) {
       deleteList(listToDelete.id);
-      if (selectedListId === listToDelete.id) {
-        onSelectList('');
+      if (selectedListIds.includes(listToDelete.id)) {
+        onSelectLists(selectedListIds.filter(id => id !== listToDelete.id));
       }
       setListToDelete(null);
       setIsDeleting(false);
@@ -162,57 +170,66 @@ export function TaskLists({ selectedListId, onSelectList }: TaskListsProps) {
           scrollbarWidth: 'none', // Firefox
           msOverflowStyle: 'none' // IE/Edge
         }}>
-          {state.lists.map((list) => (
-            <ListItem
-              key={list.id}
-              disablePadding
-              sx={{ mb: 0.75 }}
-              secondaryAction={
-                <Box sx={{ display: 'flex', gap: 0.5 }}>
-                  <IconButton
-                    edge="end"
-                    size="small"
-                    onClick={() => handleStartEdit(list.id, list.title)}
-                    sx={{ 
-                      padding: '3px',
-                      '& .MuiSvgIcon-root': {
-                        fontSize: '1.1rem'
-                      }
-                    }}
-                  >
-                    <EditIcon />
-                  </IconButton>
-                  <IconButton
-                    edge="end"
-                    size="small"
-                    onClick={() => handleStartDelete(list.id, list.title)}
-                    sx={{ 
-                      padding: '3px',
-                      '& .MuiSvgIcon-root': {
-                        fontSize: '1.1rem'
-                      }
-                    }}
-                  >
-                    <DeleteIcon />
-                  </IconButton>
-                </Box>
-              }
-            >
-              <ListItemButton
-                selected={selectedListId === list.id}
-                onClick={() => onSelectList(list.id)}
-                sx={{
-                  borderRadius: 1,
-                  py: 0.75,
-                  '&.Mui-selected': {
-                    bgcolor: 'action.selected',
-                  },
-                }}
+          {state.lists.map((list) => {
+            const activeTaskCount = state.tasks.filter(task => 
+              task.listId === list.id && !task.completed
+            ).length;
+
+            return (
+              <ListItem
+                key={list.id}
+                disablePadding
+                sx={{ mb: 0.375 }}
+                secondaryAction={
+                  activeTaskCount > 0 && (
+                    <Typography 
+                      variant="body2" 
+                      color="text.secondary"
+                      sx={{ 
+                        fontSize: '0.875rem',
+                        px: 0.25
+                      }}
+                    >
+                      {activeTaskCount}
+                    </Typography>
+                  )
+                }
               >
-                <ListItemText primary={list.title} />
-              </ListItemButton>
-            </ListItem>
-          ))}
+                <ListItemButton
+                  onClick={() => handleListSelection(list.id)}
+                  sx={{
+                    borderRadius: 1,
+                    py: 0.375,
+                    px: 1,
+                    '&:hover': {
+                      bgcolor: 'action.hover'
+                    }
+                  }}
+                >
+                  <Checkbox
+                    edge="start"
+                    checked={selectedListIds.includes(list.id)}
+                    tabIndex={-1}
+                    disableRipple
+                    size="small"
+                    sx={{ 
+                      p: 0.5,
+                      mr: 0.5
+                    }}
+                  />
+                  <ListItemText 
+                    primary={list.title}
+                    primaryTypographyProps={{
+                      sx: {
+                        fontSize: '0.875rem',
+                        color: 'text.primary'
+                      }
+                    }}
+                  />
+                </ListItemButton>
+              </ListItem>
+            );
+          })}
         </List>
       </Collapse>
 
@@ -346,7 +363,7 @@ export function TaskLists({ selectedListId, onSelectList }: TaskListsProps) {
           createTask(listId, title, description);
           setIsCreatingTask(false);
         }}
-        initialListId={selectedListId || undefined}
+        initialListId={selectedListIds[0] || undefined}
       />
     </Box>
   );

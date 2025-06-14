@@ -106,7 +106,7 @@ export function TaskDialog({ open, onClose, onSubmit, initialValues, initialList
 }
 
 interface TaskViewProps {
-  selectedListId: string | null;
+  selectedListIds: string[];
 }
 
 interface SubtaskDialogProps {
@@ -403,27 +403,14 @@ function TaskItem({ task, onUpdate, onDelete }: {
   );
 }
 
-export function TaskView({ selectedListId }: TaskViewProps) {
+export function TaskView({ selectedListIds }: TaskViewProps) {
   const { state, createTask, updateTask, deleteTask } = useApp();
   const [isCreating, setIsCreating] = useState(false);
   const [showCompleted, setShowCompleted] = useState(false);
   const [showActive, setShowActive] = useState(true);
   const [isDeleteAllDialogOpen, setIsDeleteAllDialogOpen] = useState(false);
 
-  const tasks = state.tasks.filter((task) => task.listId === selectedListId);
-  const selectedList = state.lists.find((list) => list.id === selectedListId);
-
-  const incompleteTasks = tasks.filter(task => !task.completed);
-  const completedTasks = tasks.filter(task => task.completed);
-
-  const hasBothTypes = incompleteTasks.length > 0 && completedTasks.length > 0;
-
-  const handleDeleteAllCompleted = () => {
-    completedTasks.forEach(task => deleteTask(task.id));
-    setIsDeleteAllDialogOpen(false);
-  };
-
-  if (!selectedListId) {
+  if (selectedListIds.length === 0) {
     return (
       <Box
         sx={{
@@ -441,127 +428,147 @@ export function TaskView({ selectedListId }: TaskViewProps) {
   }
 
   return (
-    <Box>
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
-        <Typography variant="h5" sx={{ flex: 1 }}>
-          {selectedList?.title}
-        </Typography>
-        <Button
-          startIcon={<AddIcon />}
-          variant="contained"
-          onClick={() => setIsCreating(true)}
-        >
-          Add Task
-        </Button>
-      </Box>
+    <Box sx={{ display: 'flex', gap: 3, height: '100%' }}>
+      {selectedListIds.map((listId) => {
+        const tasks = state.tasks.filter((task) => task.listId === listId);
+        const selectedList = state.lists.find((list) => list.id === listId);
+        const incompleteTasks = tasks.filter(task => !task.completed);
+        const completedTasks = tasks.filter(task => task.completed);
+        const hasBothTypes = incompleteTasks.length > 0 && completedTasks.length > 0;
 
-      {/* Active Tasks Section */}
-      {incompleteTasks.length > 0 && (
-        <>
-          {hasBothTypes && (
-            <Box 
-              sx={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: 1, 
-                mb: 2,
-                cursor: 'pointer',
-                '&:hover': {
-                  opacity: 0.8
-                }
-              }}
-              onClick={() => setShowActive(!showActive)}
-            >
-              <Typography variant="h6" color="text.secondary">
-                Active ({incompleteTasks.length})
-              </Typography>
-              <IconButton size="small">
-                {showActive ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
-              </IconButton>
-            </Box>
-          )}
-          <Collapse in={!hasBothTypes || showActive}>
-            {incompleteTasks.map((task) => (
-              <TaskItem
-                key={task.id}
-                task={task}
-                onUpdate={(updates) => updateTask(task.id, updates)}
-                onDelete={() => deleteTask(task.id)}
-              />
-            ))}
-          </Collapse>
-        </>
-      )}
-
-      {/* Completed Tasks Section */}
-      {completedTasks.length > 0 && (
-        <>
+        return (
           <Box 
+            key={listId}
             sx={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: 2, 
-              mt: 3, 
-              mb: 2,
+              flex: 1,
+              minWidth: 0, // This prevents flex items from overflowing
+              display: 'flex',
+              flexDirection: 'column'
             }}
           >
-            <Box 
-              sx={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: 1,
-                cursor: 'pointer',
-                flex: 1,
-                '&:hover': {
-                  opacity: 0.8
-                }
-              }}
-              onClick={() => setShowCompleted(!showCompleted)}
-            >
-              <Typography variant="h6" color="text.secondary">
-                Completed ({completedTasks.length})
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
+              <Typography variant="h5" sx={{ flex: 1 }}>
+                {selectedList?.title}
               </Typography>
-              <IconButton size="small">
-                {showCompleted ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
-              </IconButton>
+              <Button
+                startIcon={<AddIcon />}
+                variant="contained"
+                onClick={() => setIsCreating(true)}
+              >
+                Add Task
+              </Button>
             </Box>
-            <Button
-              variant="contained"
-              color="error"
-              size="small"
-              onClick={() => setIsDeleteAllDialogOpen(true)}
-              sx={{ 
-                minWidth: '100px',
-                bgcolor: 'error.main',
-                '&:hover': {
-                  bgcolor: 'error.dark',
-                },
-                height: '30px',
-                py: 0.5,
-                px: 1,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                lineHeight: 1
-              }}
-            >
-              Delete All
-            </Button>
+
+            {/* Active Tasks Section */}
+            {incompleteTasks.length > 0 && (
+              <>
+                {hasBothTypes && (
+                  <Box 
+                    sx={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      gap: 1, 
+                      mb: 2,
+                      cursor: 'pointer',
+                      '&:hover': {
+                        opacity: 0.8
+                      }
+                    }}
+                    onClick={() => setShowActive(!showActive)}
+                  >
+                    <Typography variant="h6" color="text.secondary">
+                      Active ({incompleteTasks.length})
+                    </Typography>
+                    <IconButton size="small">
+                      {showActive ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+                    </IconButton>
+                  </Box>
+                )}
+                <Collapse in={!hasBothTypes || showActive}>
+                  {incompleteTasks.map((task) => (
+                    <TaskItem
+                      key={task.id}
+                      task={task}
+                      onUpdate={(updates) => updateTask(task.id, updates)}
+                      onDelete={() => deleteTask(task.id)}
+                    />
+                  ))}
+                </Collapse>
+              </>
+            )}
+
+            {/* Completed Tasks Section */}
+            {completedTasks.length > 0 && (
+              <>
+                <Box 
+                  sx={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: 2, 
+                    mt: 3, 
+                    mb: 2,
+                  }}
+                >
+                  <Box 
+                    sx={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      gap: 1,
+                      cursor: 'pointer',
+                      flex: 1,
+                      '&:hover': {
+                        opacity: 0.8
+                      }
+                    }}
+                    onClick={() => setShowCompleted(!showCompleted)}
+                  >
+                    <Typography variant="h6" color="text.secondary">
+                      Completed ({completedTasks.length})
+                    </Typography>
+                    <IconButton size="small">
+                      {showCompleted ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+                    </IconButton>
+                  </Box>
+                  <Button
+                    variant="contained"
+                    color="error"
+                    size="small"
+                    onClick={() => setIsDeleteAllDialogOpen(true)}
+                    sx={{ 
+                      minWidth: '100px',
+                      bgcolor: 'error.main',
+                      '&:hover': {
+                        bgcolor: 'error.dark',
+                      },
+                      height: '30px',
+                      py: 0.5,
+                      px: 1,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      lineHeight: 1
+                    }}
+                  >
+                    Delete All
+                  </Button>
+                </Box>
+                <Collapse in={showCompleted}>
+                  <Box sx={{ opacity: 0.7 }}>
+                    {completedTasks.map((task) => (
+                      <TaskItem
+                        key={task.id}
+                        task={task}
+                        onUpdate={(updates) => updateTask(task.id, updates)}
+                        onDelete={() => deleteTask(task.id)}
+                      />
+                    ))}
+                  </Box>
+                </Collapse>
+              </>
+            )}
           </Box>
-          <Collapse in={showCompleted}>
-            <Box sx={{ opacity: 0.7 }}>
-              {completedTasks.map((task) => (
-                <TaskItem
-                  key={task.id}
-                  task={task}
-                  onUpdate={(updates) => updateTask(task.id, updates)}
-                  onDelete={() => deleteTask(task.id)}
-                />
-              ))}
-            </Box>
-          </Collapse>
-        </>
-      )}
+        );
+      })}
 
       <TaskDialog
         open={isCreating}
@@ -570,7 +577,7 @@ export function TaskView({ selectedListId }: TaskViewProps) {
           createTask(listId, title, description);
           setIsCreating(false);
         }}
-        initialListId={selectedListId}
+        initialListId={selectedListIds[0]}
       />
 
       {/* Delete All Confirmation Dialog */}
@@ -583,7 +590,7 @@ export function TaskView({ selectedListId }: TaskViewProps) {
         <DialogTitle>Delete All Completed Tasks</DialogTitle>
         <DialogContent>
           <Typography>
-            Are you sure you want to delete all {completedTasks.length} completed tasks? This action cannot be undone.
+            Are you sure you want to delete all completed tasks in the selected list? This action cannot be undone.
           </Typography>
         </DialogContent>
         <DialogActions>
@@ -591,7 +598,15 @@ export function TaskView({ selectedListId }: TaskViewProps) {
             Cancel
           </Button>
           <Button 
-            onClick={handleDeleteAllCompleted}
+            onClick={() => {
+              // Delete completed tasks for the current list
+              const currentListId = selectedListIds[0];
+              const tasksToDelete = state.tasks.filter(
+                task => task.listId === currentListId && task.completed
+              );
+              tasksToDelete.forEach(task => deleteTask(task.id));
+              setIsDeleteAllDialogOpen(false);
+            }}
             variant="contained"
             color="error"
           >

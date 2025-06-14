@@ -7,7 +7,7 @@ import { useState, useEffect } from 'react';
 
 export function App() {
   const { state, createList, createTask, createSubtask, updateTask } = useApp();
-  const [selectedListId, setSelectedListId] = useState<string | null>(null);
+  const [selectedListIds, setSelectedListIds] = useState<string[]>([]);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const isMobile = useMediaQuery(useTheme().breakpoints.down('md'));
 
@@ -22,11 +22,11 @@ export function App() {
     if (state.lists.length === 0) {
       // Create default list
       createList('My Tasks');
-    } else if (!selectedListId) {
+    } else if (selectedListIds.length === 0) {
       // If there are lists but none selected, select the first one
-      setSelectedListId(state.lists[0].id);
+      setSelectedListIds([state.lists[0].id]);
     }
-  }, [state.lists, selectedListId, createList]);
+  }, [state.lists, selectedListIds, createList]);
 
   // Create example tasks after the default list is created
   useEffect(() => {
@@ -82,21 +82,14 @@ export function App() {
     }
   }, [state.tasks, createSubtask]);
 
-  const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
-  };
-
-  const handleOverlayClick = () => {
-    if (isMobile) {
-      setIsSidebarOpen(false);
-    }
-  };
-
   return (
     <>
       <CssBaseline />
       <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', bgcolor: 'background.default' }}>
-        <Header onMenuClick={toggleSidebar} />
+        <Header 
+          onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)} 
+          isSidebarOpen={isSidebarOpen}
+        />
         <Box
           sx={{
             display: 'flex',
@@ -109,7 +102,7 @@ export function App() {
           {/* Overlay for mobile */}
           {isMobile && isSidebarOpen && (
             <Box
-              onClick={handleOverlayClick}
+              onClick={() => setIsSidebarOpen(false)}
               sx={{
                 position: 'fixed',
                 top: '64px',
@@ -166,20 +159,15 @@ export function App() {
               }}
             >
               <TaskLists
-                selectedListId={selectedListId}
-                onSelectList={(id) => {
-                  setSelectedListId(id);
-                  if (isMobile) {
-                    setIsSidebarOpen(false);
-                  }
-                }}
+                selectedListIds={selectedListIds}
+                onSelectLists={setSelectedListIds}
               />
             </Box>
           </Box>
           <Box
             sx={{
               flex: 1,
-              ml: { md: isSidebarOpen ? '260px' : 0 },
+              ml: { xs: 0, md: isSidebarOpen ? '260px' : 0 },
               minHeight: { xs: 'calc(100vh - 64px)', md: 'calc(100vh - 64px)' },
               overflow: 'auto',
               '&::-webkit-scrollbar': {
@@ -196,8 +184,8 @@ export function App() {
               zIndex: { xs: 0, md: 'auto' },
             }}
           >
-            <Container maxWidth="lg" sx={{ py: 3, px: { xs: 0, sm: 2 } }}>
-              <TaskView selectedListId={selectedListId} />
+            <Container maxWidth="xl" sx={{ py: 3 }}>
+              <TaskView selectedListIds={selectedListIds} />
             </Container>
           </Box>
         </Box>
