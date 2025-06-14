@@ -12,11 +12,14 @@ import {
   DialogActions,
   TextField,
   Button,
+  Collapse,
 } from '@mui/material';
 import {
   Add as AddIcon,
   Edit as EditIcon,
   Delete as DeleteIcon,
+  KeyboardArrowDown as KeyboardArrowDownIcon,
+  KeyboardArrowUp as KeyboardArrowUpIcon,
 } from '@mui/icons-material';
 import { useState } from 'react';
 import { useApp } from '../context/AppContext';
@@ -33,6 +36,7 @@ export function TaskLists({ selectedListId, onSelectList }: TaskListsProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isCreatingTask, setIsCreatingTask] = useState(false);
+  const [isListsExpanded, setIsListsExpanded] = useState(true);
   const [listToDelete, setListToDelete] = useState<{ id: string; title: string; taskCount: number } | null>(null);
   const [newListTitle, setNewListTitle] = useState('');
   const [editingListId, setEditingListId] = useState<string | null>(null);
@@ -120,7 +124,6 @@ export function TaskLists({ selectedListId, onSelectList }: TaskListsProps) {
               fontSize: '1.5rem'
             }
           },
-          // width: 'fit-content',
           minWidth: 'auto',
           borderRadius: 1.5
         }}
@@ -128,80 +131,90 @@ export function TaskLists({ selectedListId, onSelectList }: TaskListsProps) {
         Create
       </Button>
 
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+      <Box 
+        sx={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          gap: 1, 
+          mb: 1,
+          cursor: 'pointer',
+          '&:hover': {
+            opacity: 0.8
+          }
+        }}
+        onClick={() => setIsListsExpanded(!isListsExpanded)}
+      >
         <Typography variant="h6" sx={{ flex: 1 }}>
           Lists
         </Typography>
-        <IconButton
-          color="primary"
-          onClick={() => setIsCreating(true)}
-          size="small"
-        >
-          <AddIcon />
+        <IconButton size="small">
+          {isListsExpanded ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
         </IconButton>
       </Box>
 
-      <List sx={{ 
-        flex: 1, 
-        overflow: 'auto',
-        '&::-webkit-scrollbar': {
-          display: 'none'
-        },
-        scrollbarWidth: 'none', // Firefox
-        msOverflowStyle: 'none' // IE/Edge
-      }}>
-        {state.lists.map((list) => (
-          <ListItem
-            key={list.id}
-            disablePadding
-            sx={{ mb: 0.75 }}
-            secondaryAction={
-              <Box sx={{ display: 'flex', gap: 0.5 }}>
-                <IconButton
-                  edge="end"
-                  size="small"
-                  onClick={() => handleStartEdit(list.id, list.title)}
-                  sx={{ 
-                    padding: '3px',
-                    '& .MuiSvgIcon-root': {
-                      fontSize: '1.1rem'
-                    }
-                  }}
-                >
-                  <EditIcon />
-                </IconButton>
-                <IconButton
-                  edge="end"
-                  size="small"
-                  onClick={() => handleStartDelete(list.id, list.title)}
-                  sx={{ 
-                    padding: '3px',
-                    '& .MuiSvgIcon-root': {
-                      fontSize: '1.1rem'
-                    }
-                  }}
-                >
-                  <DeleteIcon />
-                </IconButton>
-              </Box>
-            }
-          >
-            <ListItemButton
-              selected={selectedListId === list.id}
-              onClick={() => onSelectList(list.id)}
-              sx={{
-                borderRadius: 1,
-                py: 0.75,
-                '&.Mui-selected': {
-                  bgcolor: 'action.selected',
-                },
-              }}
+      <Collapse in={isListsExpanded}>
+        <List sx={{ 
+          flex: 1, 
+          overflow: 'auto',
+          '&::-webkit-scrollbar': {
+            display: 'none'
+          },
+          scrollbarWidth: 'none', // Firefox
+          msOverflowStyle: 'none' // IE/Edge
+        }}>
+          {state.lists.map((list) => (
+            <ListItem
+              key={list.id}
+              disablePadding
+              sx={{ mb: 0.75 }}
+              secondaryAction={
+                <Box sx={{ display: 'flex', gap: 0.5 }}>
+                  <IconButton
+                    edge="end"
+                    size="small"
+                    onClick={() => handleStartEdit(list.id, list.title)}
+                    sx={{ 
+                      padding: '3px',
+                      '& .MuiSvgIcon-root': {
+                        fontSize: '1.1rem'
+                      }
+                    }}
+                  >
+                    <EditIcon />
+                  </IconButton>
+                  <IconButton
+                    edge="end"
+                    size="small"
+                    onClick={() => handleStartDelete(list.id, list.title)}
+                    sx={{ 
+                      padding: '3px',
+                      '& .MuiSvgIcon-root': {
+                        fontSize: '1.1rem'
+                      }
+                    }}
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                </Box>
+              }
             >
-              <ListItemText primary={list.title} />
-            </ListItemButton>
-          </ListItem>
-        ))}
-      </List>
+              <ListItemButton
+                selected={selectedListId === list.id}
+                onClick={() => onSelectList(list.id)}
+                sx={{
+                  borderRadius: 1,
+                  py: 0.75,
+                  '&.Mui-selected': {
+                    bgcolor: 'action.selected',
+                  },
+                }}
+              >
+                <ListItemText primary={list.title} />
+              </ListItemButton>
+            </ListItem>
+          ))}
+        </List>
+      </Collapse>
 
       {/* Create List Dialog */}
       <Dialog 
