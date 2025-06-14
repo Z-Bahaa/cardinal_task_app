@@ -9,6 +9,7 @@ export function App() {
   const { state, createList, createTask, createSubtask, updateTask } = useApp();
   const [selectedListIds, setSelectedListIds] = useState<string[]>([]);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarTransitioning, setIsSidebarTransitioning] = useState(false);
   const isMobile = useMediaQuery(useTheme().breakpoints.down('md'));
 
   useEffect(() => {
@@ -81,12 +82,22 @@ export function App() {
     }
   }, [state.tasks, createSubtask]);
 
+  const handleSidebarToggle = () => {
+    setIsSidebarTransitioning(true);
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
+  // Listen for transition end to update visibility
+  const handleTransitionEnd = () => {
+    setIsSidebarTransitioning(false);
+  };
+
   return (
     <>
       <CssBaseline />
       <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', bgcolor: 'background.default' }}>
         <Header 
-          onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)} 
+          onMenuClick={handleSidebarToggle} 
           isSidebarOpen={isSidebarOpen}
         />
         <Box
@@ -96,6 +107,7 @@ export function App() {
             mt: '64px',
             flex: 1,
             position: 'relative',
+            overflow: 'hidden',
           }}
         >
           {/* Overlay for mobile */}
@@ -139,13 +151,14 @@ export function App() {
                 easing: theme.transitions.easing.easeInOut,
               }),
             }}
+            onTransitionEnd={handleTransitionEnd}
           >
             <Box
               sx={{
                 width: '100%',
                 height: '100%',
-                overflow: 'auto',
-                opacity: isSidebarOpen ? 1 : 0,
+                overflow: isSidebarOpen ? 'auto' : 'hidden',
+                opacity: isSidebarOpen && !isSidebarTransitioning ? 1 : 0,
                 transform: `translateX(${isSidebarOpen ? 0 : -20}px)`,
                 transition: theme => theme.transitions.create(['opacity', 'transform'], {
                   duration: theme.transitions.duration.standard,
@@ -155,6 +168,7 @@ export function App() {
                 py: 1,
                 bgcolor: 'background.default',
                 minWidth: { xs: isSidebarOpen ? '50%' : 0 },
+                visibility: isSidebarOpen || isSidebarTransitioning ? 'visible' : 'hidden',
               }}
             >
               <TaskLists
