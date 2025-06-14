@@ -201,6 +201,7 @@ export function TaskLists({ selectedListIds = [], onSelectLists }: TaskListsProp
                     borderRadius: 1,
                     py: 0.375,
                     px: 1,
+                    pl: 2,
                     '&:hover': {
                       bgcolor: 'action.hover'
                     }
@@ -232,6 +233,42 @@ export function TaskLists({ selectedListIds = [], onSelectLists }: TaskListsProp
           })}
         </List>
       </Collapse>
+
+      <Button
+        onClick={() => setIsCreating(true)}
+        sx={{
+          mt: 1,
+          ml: -1,
+          borderRadius: 1,
+          py: 0.75,
+          px: 1,
+          pl: 1,
+          justifyContent: 'flex-start',
+          alignItems: 'center',
+          textTransform: 'none',
+          color: 'text.primary',
+          '&:hover': {
+            bgcolor: 'action.hover'
+          }
+        }}
+      >
+        <AddIcon 
+          sx={{ 
+            fontSize: '1.4rem',
+            mr: 0.75,
+            opacity: 0.7
+          }} 
+        />
+        <Typography
+          sx={{
+            fontSize: '0.95rem',
+            mt: "-0.5px",
+            color: 'text.primary'
+          }}
+        >
+          Create new list
+        </Typography>
+      </Button>
 
       {/* Create List Dialog */}
       <Dialog 
