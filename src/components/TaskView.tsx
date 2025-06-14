@@ -33,19 +33,22 @@ interface TaskViewProps {
 interface TaskDialogProps {
   open: boolean;
   onClose: () => void;
-  onSubmit: (title: string, description: string) => void;
+  onSubmit: (listId: string, title: string, description: string) => void;
   initialValues?: {
     title: string;
     description: string;
   };
+  initialListId?: string;
 }
 
-function TaskDialog({ open, onClose, onSubmit, initialValues }: TaskDialogProps) {
+function TaskDialog({ open, onClose, onSubmit, initialValues, initialListId }: TaskDialogProps) {
+  const { state } = useApp();
   const [title, setTitle] = useState(initialValues?.title || '');
   const [description, setDescription] = useState(initialValues?.description || '');
+  const [selectedListId, setSelectedListId] = useState(initialListId || state.lists[0]?.id || '');
 
   const handleSubmit = () => {
-    onSubmit(title, description);
+    onSubmit(selectedListId, title, description);
     setTitle('');
     setDescription('');
   };
@@ -72,6 +75,22 @@ function TaskDialog({ open, onClose, onSubmit, initialValues }: TaskDialogProps)
             value={description}
             onChange={(e) => setDescription(e.target.value)}
           />
+          <TextField
+            select
+            label="List"
+            fullWidth
+            value={selectedListId}
+            onChange={(e) => setSelectedListId(e.target.value)}
+            SelectProps={{
+              native: true,
+            }}
+          >
+            {state.lists.map((list) => (
+              <option key={list.id} value={list.id}>
+                {list.title}
+              </option>
+            ))}
+          </TextField>
         </Box>
       </DialogContent>
       <DialogActions>
@@ -81,7 +100,7 @@ function TaskDialog({ open, onClose, onSubmit, initialValues }: TaskDialogProps)
         <Button 
           onClick={handleSubmit}
           variant="contained"
-          disabled={!title.trim()}
+          disabled={!title.trim() || !selectedListId}
         >
           {initialValues ? 'Save' : 'Create'}
         </Button>
@@ -209,7 +228,7 @@ function TaskItem({ task, onUpdate, onDelete }: {
               <TaskDialog
                 open={isEditing}
                 onClose={() => setIsEditing(false)}
-                onSubmit={(title, description) => {
+                onSubmit={(listId, title, description) => {
                   onUpdate({ title, description });
                   setIsEditing(false);
                 }}
@@ -217,6 +236,7 @@ function TaskItem({ task, onUpdate, onDelete }: {
                   title: task.title,
                   description: task.description || '',
                 }}
+                initialListId={task.listId}
               />
             ) : (
               <>
@@ -546,10 +566,11 @@ export function TaskView({ selectedListId }: TaskViewProps) {
       <TaskDialog
         open={isCreating}
         onClose={() => setIsCreating(false)}
-        onSubmit={(title, description) => {
-          createTask(selectedListId, title, description);
+        onSubmit={(listId, title, description) => {
+          createTask(listId, title, description);
           setIsCreating(false);
         }}
+        initialListId={selectedListId}
       />
 
       {/* Delete All Confirmation Dialog */}
