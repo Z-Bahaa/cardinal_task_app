@@ -22,11 +22,10 @@ export function App() {
     if (state.lists.length === 0) {
       // Create default list
       createList('My Tasks');
-    } else if (selectedListIds.length === 0) {
-      // If there are lists but none selected, select the first one
-      setSelectedListIds([state.lists[0].id]);
     }
-  }, [state.lists, selectedListIds, createList]);
+    // Remove the automatic selection of the first list
+    // This allows users to deselect all lists if they want to
+  }, [state.lists, createList]);
 
   // Create example tasks after the default list is created
   useEffect(() => {

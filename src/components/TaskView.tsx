@@ -418,6 +418,7 @@ export function TaskView({ selectedListIds }: TaskViewProps) {
           alignItems: 'center',
           justifyContent: 'center',
           height: '100%',
+          mt: '40vh'
         }}
       >
         <Typography variant="h6" color="text.secondary">
@@ -446,126 +447,126 @@ export function TaskView({ selectedListIds }: TaskViewProps) {
               flexDirection: 'column'
             }}
           >
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
-              <Typography variant="h5" sx={{ flex: 1 }}>
-                {selectedList?.title}
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
+        <Typography variant="h5" sx={{ flex: 1 }}>
+          {selectedList?.title}
+        </Typography>
+        <Button
+          startIcon={<AddIcon />}
+          variant="contained"
+          onClick={() => setIsCreating(true)}
+        >
+          Add Task
+        </Button>
+      </Box>
+
+      {/* Active Tasks Section */}
+      {incompleteTasks.length > 0 && (
+        <>
+          {hasBothTypes && (
+            <Box 
+              sx={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: 1, 
+                mb: 2,
+                cursor: 'pointer',
+                '&:hover': {
+                  opacity: 0.8
+                }
+              }}
+              onClick={() => setShowActive(!showActive)}
+            >
+              <Typography variant="h6" color="text.secondary">
+                Active ({incompleteTasks.length})
               </Typography>
-              <Button
-                startIcon={<AddIcon />}
-                variant="contained"
-                onClick={() => setIsCreating(true)}
-              >
-                Add Task
-              </Button>
+              <IconButton size="small">
+                {showActive ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+              </IconButton>
             </Box>
+          )}
+          <Collapse in={!hasBothTypes || showActive}>
+            {incompleteTasks.map((task) => (
+              <TaskItem
+                key={task.id}
+                task={task}
+                onUpdate={(updates) => updateTask(task.id, updates)}
+                onDelete={() => deleteTask(task.id)}
+              />
+            ))}
+          </Collapse>
+        </>
+      )}
 
-            {/* Active Tasks Section */}
-            {incompleteTasks.length > 0 && (
-              <>
-                {hasBothTypes && (
-                  <Box 
-                    sx={{ 
-                      display: 'flex', 
-                      alignItems: 'center', 
-                      gap: 1, 
-                      mb: 2,
-                      cursor: 'pointer',
-                      '&:hover': {
-                        opacity: 0.8
-                      }
-                    }}
-                    onClick={() => setShowActive(!showActive)}
-                  >
-                    <Typography variant="h6" color="text.secondary">
-                      Active ({incompleteTasks.length})
-                    </Typography>
-                    <IconButton size="small">
-                      {showActive ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
-                    </IconButton>
-                  </Box>
-                )}
-                <Collapse in={!hasBothTypes || showActive}>
-                  {incompleteTasks.map((task) => (
-                    <TaskItem
-                      key={task.id}
-                      task={task}
-                      onUpdate={(updates) => updateTask(task.id, updates)}
-                      onDelete={() => deleteTask(task.id)}
-                    />
-                  ))}
-                </Collapse>
-              </>
-            )}
-
-            {/* Completed Tasks Section */}
-            {completedTasks.length > 0 && (
-              <>
-                <Box 
-                  sx={{ 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    gap: 2, 
-                    mt: 3, 
-                    mb: 2,
-                  }}
-                >
-                  <Box 
-                    sx={{ 
-                      display: 'flex', 
-                      alignItems: 'center', 
-                      gap: 1,
-                      cursor: 'pointer',
-                      flex: 1,
-                      '&:hover': {
-                        opacity: 0.8
-                      }
-                    }}
-                    onClick={() => setShowCompleted(!showCompleted)}
-                  >
-                    <Typography variant="h6" color="text.secondary">
-                      Completed ({completedTasks.length})
-                    </Typography>
-                    <IconButton size="small">
-                      {showCompleted ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
-                    </IconButton>
-                  </Box>
-                  <Button
-                    variant="contained"
-                    color="error"
-                    size="small"
-                    onClick={() => setIsDeleteAllDialogOpen(true)}
-                    sx={{ 
-                      minWidth: '100px',
-                      bgcolor: 'error.main',
-                      '&:hover': {
-                        bgcolor: 'error.dark',
-                      },
-                      height: '30px',
-                      py: 0.5,
-                      px: 1,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      lineHeight: 1
-                    }}
-                  >
-                    Delete All
-                  </Button>
-                </Box>
-                <Collapse in={showCompleted}>
-                  <Box sx={{ opacity: 0.7 }}>
-                    {completedTasks.map((task) => (
-                      <TaskItem
-                        key={task.id}
-                        task={task}
-                        onUpdate={(updates) => updateTask(task.id, updates)}
-                        onDelete={() => deleteTask(task.id)}
-                      />
-                    ))}
-                  </Box>
-                </Collapse>
-              </>
-            )}
+      {/* Completed Tasks Section */}
+      {completedTasks.length > 0 && (
+        <>
+          <Box 
+            sx={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: 2, 
+              mt: 3, 
+              mb: 2,
+            }}
+          >
+            <Box 
+              sx={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: 1,
+                cursor: 'pointer',
+                flex: 1,
+                '&:hover': {
+                  opacity: 0.8
+                }
+              }}
+              onClick={() => setShowCompleted(!showCompleted)}
+            >
+              <Typography variant="h6" color="text.secondary">
+                Completed ({completedTasks.length})
+              </Typography>
+              <IconButton size="small">
+                {showCompleted ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+              </IconButton>
+            </Box>
+            <Button
+              variant="contained"
+              color="error"
+              size="small"
+              onClick={() => setIsDeleteAllDialogOpen(true)}
+              sx={{ 
+                minWidth: '100px',
+                bgcolor: 'error.main',
+                '&:hover': {
+                  bgcolor: 'error.dark',
+                },
+                height: '30px',
+                py: 0.5,
+                px: 1,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                lineHeight: 1
+              }}
+            >
+              Delete All
+            </Button>
+          </Box>
+          <Collapse in={showCompleted}>
+            <Box sx={{ opacity: 0.7 }}>
+              {completedTasks.map((task) => (
+                <TaskItem
+                  key={task.id}
+                  task={task}
+                  onUpdate={(updates) => updateTask(task.id, updates)}
+                  onDelete={() => deleteTask(task.id)}
+                />
+              ))}
+            </Box>
+          </Collapse>
+        </>
+      )}
           </Box>
         );
       })}
