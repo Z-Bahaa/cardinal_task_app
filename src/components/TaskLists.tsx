@@ -20,6 +20,7 @@ import {
 } from '@mui/icons-material';
 import { useState } from 'react';
 import { useApp } from '../context/AppContext';
+import { TaskDialog } from './TaskView';
 
 interface TaskListsProps {
   selectedListId: string | null;
@@ -27,10 +28,11 @@ interface TaskListsProps {
 }
 
 export function TaskLists({ selectedListId, onSelectList }: TaskListsProps) {
-  const { state, createList, updateList, deleteList } = useApp();
+  const { state, createList, updateList, deleteList, createTask } = useApp();
   const [isCreating, setIsCreating] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isCreatingTask, setIsCreatingTask] = useState(false);
   const [listToDelete, setListToDelete] = useState<{ id: string; title: string; taskCount: number } | null>(null);
   const [newListTitle, setNewListTitle] = useState('');
   const [editingListId, setEditingListId] = useState<string | null>(null);
@@ -97,6 +99,35 @@ export function TaskLists({ selectedListId, onSelectList }: TaskListsProps) {
 
   return (
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+      <Button
+        variant="contained"
+        startIcon={<AddIcon sx={{ fontSize: '1.5rem' }} />}
+        onClick={() => setIsCreatingTask(true)}
+        sx={{ 
+          mt: 2,
+          mb: 3.5,
+          justifyContent: 'flex-start',
+          alignItems: 'center',
+          textAlign: 'left',
+          pl: 1.75,
+          pr: 4,
+          py: 0.8,
+          fontSize: '1.05rem',
+          '& .MuiButton-startIcon': {
+            marginRight: 1,
+            marginTop: '-1.5px',
+            '& .MuiSvgIcon-root': {
+              fontSize: '1.5rem'
+            }
+          },
+          // width: 'fit-content',
+          minWidth: 'auto',
+          borderRadius: 1.5
+        }}
+      >
+        Create
+      </Button>
+
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
         <Typography variant="h6" sx={{ flex: 1 }}>
           Lists
@@ -109,6 +140,7 @@ export function TaskLists({ selectedListId, onSelectList }: TaskListsProps) {
           <AddIcon />
         </IconButton>
       </Box>
+
       <List sx={{ 
         flex: 1, 
         overflow: 'auto',
@@ -293,6 +325,16 @@ export function TaskLists({ selectedListId, onSelectList }: TaskListsProps) {
           </Button>
         </DialogActions>
       </Dialog>
+
+      <TaskDialog
+        open={isCreatingTask}
+        onClose={() => setIsCreatingTask(false)}
+        onSubmit={(listId: string, title: string, description: string) => {
+          createTask(listId, title, description);
+          setIsCreatingTask(false);
+        }}
+        initialListId={selectedListId || undefined}
+      />
     </Box>
   );
 } 

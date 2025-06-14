@@ -26,11 +26,7 @@ import { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import type { Task, Subtask } from '../types/task';
 
-interface TaskViewProps {
-  selectedListId: string | null;
-}
-
-interface TaskDialogProps {
+export interface TaskDialogProps {
   open: boolean;
   onClose: () => void;
   onSubmit: (listId: string, title: string, description: string) => void;
@@ -41,7 +37,7 @@ interface TaskDialogProps {
   initialListId?: string;
 }
 
-function TaskDialog({ open, onClose, onSubmit, initialValues, initialListId }: TaskDialogProps) {
+export function TaskDialog({ open, onClose, onSubmit, initialValues, initialListId }: TaskDialogProps) {
   const { state } = useApp();
   const [title, setTitle] = useState(initialValues?.title || '');
   const [description, setDescription] = useState(initialValues?.description || '');
@@ -107,6 +103,10 @@ function TaskDialog({ open, onClose, onSubmit, initialValues, initialListId }: T
       </DialogActions>
     </Dialog>
   );
+}
+
+interface TaskViewProps {
+  selectedListId: string | null;
 }
 
 interface SubtaskDialogProps {
