@@ -188,6 +188,7 @@ function TaskItem({ task, onUpdate, onDelete }: {
   const [isSubtaskDialogOpen, setIsSubtaskDialogOpen] = useState(false);
   const [editingSubtask, setEditingSubtask] = useState<Subtask | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
   const { createSubtask, updateSubtask, deleteSubtask } = useApp();
 
   const handleTaskCompletion = (completed: boolean) => {
@@ -216,25 +217,26 @@ function TaskItem({ task, onUpdate, onDelete }: {
     setEditingSubtask(subtask);
   };
 
-  const handleDeleteClick = () => {
-    if (task.subtasks.length > 0) {
-      setIsDeleteDialogOpen(true);
-    } else {
-      onDelete();
-    }
-  };
-
   return (
     <Card sx={{ 
       mb: 2,
       bgcolor: 'background.default',
-      boxShadow: 'none'
-    }}>
+      boxShadow: 'none',
+      cursor: 'pointer',
+      '&:hover': {
+        bgcolor: 'action.hover'
+      }
+    }}
+    onClick={() => setIsExpanded(!isExpanded)}
+    >
       <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
         <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1 }}>
           <Checkbox
             checked={task.completed}
-            onChange={(e) => handleTaskCompletion(e.target.checked)}
+            onChange={(e) => {
+              e.stopPropagation(); // Prevent task expansion when clicking checkbox
+              handleTaskCompletion(e.target.checked);
+            }}
           />
           <Box sx={{ flex: 1 }}>
             {isEditing ? (
@@ -277,21 +279,21 @@ function TaskItem({ task, onUpdate, onDelete }: {
           <Box sx={{ display: 'flex', gap: 0.5 }}>
             <IconButton
               size="small"
-              onClick={() => setIsExpanded(!isExpanded)}
-            >
-              {isExpanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-            </IconButton>
-            <IconButton
-              size="small"
-              onClick={() => setIsEditing(true)}
+              onClick={(e) => {
+                e.stopPropagation(); // Prevent task expansion when clicking edit
+                setIsEditing(true);
+              }}
             >
               <EditIcon />
             </IconButton>
             <IconButton
               size="small"
-              onClick={handleDeleteClick}
+              onClick={(e) => {
+                e.stopPropagation(); // Prevent task expansion when clicking menu
+                setMenuAnchorEl(e.currentTarget);
+              }}
             >
-              <DeleteIcon />
+              <MoreVertIcon />
             </IconButton>
           </Box>
         </Box>
@@ -306,6 +308,7 @@ function TaskItem({ task, onUpdate, onDelete }: {
                   gap: 1,
                   mb: 1,
                 }}
+                onClick={(e) => e.stopPropagation()} // Prevent task expansion when interacting with subtasks
               >
                 <Checkbox
                   checked={subtask.completed}
@@ -367,7 +370,10 @@ function TaskItem({ task, onUpdate, onDelete }: {
             {!task.completed && (
               <Button
                 startIcon={<AddIcon />}
-                onClick={() => setIsSubtaskDialogOpen(true)}
+                onClick={(e) => {
+                  e.stopPropagation(); // Prevent task expansion when clicking add subtask
+                  setIsSubtaskDialogOpen(true);
+                }}
                 size="small"
               >
                 Add Subtask
@@ -380,6 +386,28 @@ function TaskItem({ task, onUpdate, onDelete }: {
             />
           </Box>
         </Collapse>
+
+        {/* Task Options Menu */}
+        <Menu
+          anchorEl={menuAnchorEl}
+          open={Boolean(menuAnchorEl)}
+          onClose={() => setMenuAnchorEl(null)}
+        >
+          <MenuItem 
+            onClick={() => {
+              if (task.subtasks.length > 0) {
+                setIsDeleteDialogOpen(true);
+              } else {
+                onDelete();
+              }
+              setMenuAnchorEl(null);
+            }}
+            sx={{ color: 'error.main' }}
+          >
+            <DeleteIcon sx={{ mr: 1, fontSize: '1.2rem', color: 'error.main' }} />
+            Delete Task
+          </MenuItem>
+        </Menu>
       </CardContent>
 
       {/* Delete Task Confirmation Dialog */}
