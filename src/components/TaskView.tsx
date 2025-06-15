@@ -27,6 +27,7 @@ import {
   KeyboardArrowUp as KeyboardArrowUpIcon,
   ListAlt as ListAltIcon,
   MoreVert as MoreVertIcon,
+  AssignmentOutlined as AssignmentOutlinedIcon,
 } from '@mui/icons-material';
 import { useState } from 'react';
 import { useApp } from '../context/AppContext';
@@ -578,48 +579,37 @@ export function TaskView({ selectedListIds, onSelectLists }: TaskViewProps) {
                 },
               },
             }}>
-              {/* Active Tasks Section - Always visible */}
-              {incompleteTasks.length > 0 && (
-                <>
-                  {incompleteTasks.map((task) => (
-                    <TaskItem
-                      key={task.id}
-                      task={task}
-                      onUpdate={(updates) => updateTask(task.id, updates)}
-                      onDelete={() => deleteTask(task.id)}
-                    />
-                  ))}
-                </>
-              )}
-
-              {/* Completed Tasks Section */}
-              {completedTasks.length > 0 && (
-                <>
-                  <Box 
+              {tasks.length === 0 ? (
+                <Box
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    mt: '15vh',
+                    gap: 2,
+                    opacity: 0.7
+                  }}
+                >
+                  <AssignmentOutlinedIcon 
                     sx={{ 
-                      display: 'flex', 
-                      alignItems: 'center', 
-                      gap: 1,
-                      mt: 2,
-                      mb: 1,
-                      cursor: 'pointer',
-                      '&:hover': {
-                        opacity: 0.8
-                      }
-                    }}
-                    onClick={() => setShowCompleted(!showCompleted)}
-                  >
-                    <Typography variant="subtitle2" color="text.secondary">
-                      Completed ({completedTasks.length})
-                    </Typography>
-                    <IconButton size="small">
-                      {showCompleted ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
-                    </IconButton>
-                  </Box>
-
-                  <Collapse in={showCompleted}>
-                    <Box sx={{ opacity: 0.7 }}>
-                      {completedTasks.map((task) => (
+                      fontSize: '4rem',
+                      color: 'text.secondary'
+                    }} 
+                  />
+                  <Typography variant="h6" color="text.secondary">
+                    No tasks yet
+                  </Typography>
+                  <Typography variant="body1" color="text.secondary">
+                    Add your to-dos and to-donts
+                  </Typography>
+                </Box>
+              ) : (
+                <>
+                  {/* Active Tasks Section - Always visible */}
+                  {incompleteTasks.length > 0 && (
+                    <>
+                      {incompleteTasks.map((task) => (
                         <TaskItem
                           key={task.id}
                           task={task}
@@ -627,8 +617,48 @@ export function TaskView({ selectedListIds, onSelectLists }: TaskViewProps) {
                           onDelete={() => deleteTask(task.id)}
                         />
                       ))}
-                    </Box>
-                  </Collapse>
+                    </>
+                  )}
+
+                  {/* Completed Tasks Section */}
+                  {completedTasks.length > 0 && (
+                    <>
+                      <Box 
+                        sx={{ 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          gap: 1,
+                          mt: 2,
+                          mb: 1,
+                          cursor: 'pointer',
+                          '&:hover': {
+                            opacity: 0.8
+                          }
+                        }}
+                        onClick={() => setShowCompleted(!showCompleted)}
+                      >
+                        <Typography variant="subtitle2" color="text.secondary">
+                          Completed ({completedTasks.length})
+                        </Typography>
+                        <IconButton size="small">
+                          {showCompleted ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+                        </IconButton>
+                      </Box>
+
+                      <Collapse in={showCompleted}>
+                        <Box sx={{ opacity: 0.7 }}>
+                          {completedTasks.map((task) => (
+                            <TaskItem
+                              key={task.id}
+                              task={task}
+                              onUpdate={(updates) => updateTask(task.id, updates)}
+                              onDelete={() => deleteTask(task.id)}
+                            />
+                          ))}
+                        </Box>
+                      </Collapse>
+                    </>
+                  )}
                 </>
               )}
             </Box>
