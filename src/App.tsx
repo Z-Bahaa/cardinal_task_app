@@ -180,7 +180,7 @@ export function App() {
           <Box
             sx={{
               flex: 1,
-              ml: { xs: 0, md: isSidebarOpen ? '260px' : 0 },
+              mx: { xs: 1.5, md: isSidebarOpen ? '260px' : 0 },
               minHeight: { xs: 'calc(100vh - 64px)', md: 'calc(100vh - 64px)' },
               overflow: 'auto',
               '&::-webkit-scrollbar': {

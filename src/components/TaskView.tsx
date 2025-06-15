@@ -573,8 +573,18 @@ export function TaskView({ selectedListIds, onSelectLists }: TaskViewProps) {
             key={listId}
             sx={{ 
               flex: 1,
-              minWidth: '30vw',
-              maxWidth: '45vw',
+              minWidth: {
+                xs: '100%',  // Remove max-width on small screens
+                sm: '80%',  // Remove max-width on small-medium screens
+                md: '45%',   // 75% width on medium screens
+                lg: '30vw'   // Keep original max-width for large screens
+              },
+              maxWidth: {
+                xs: '100%',  // Remove max-width on small screens
+                sm: '100%',  // Remove max-width on small-medium screens
+                md: '70%',   // 75% width on medium screens
+                lg: '45vw'   // Keep original max-width for large screens
+              },
               display: 'flex',
               flexDirection: 'column',
               bgcolor: 'background.paper',
