@@ -17,8 +17,6 @@ import {
 } from '@mui/material';
 import {
   Add as AddIcon,
-  Edit as EditIcon,
-  Delete as DeleteIcon,
   KeyboardArrowDown as KeyboardArrowDownIcon,
   KeyboardArrowUp as KeyboardArrowUpIcon,
 } from '@mui/icons-material';
@@ -32,16 +30,11 @@ interface TaskListsProps {
 }
 
 export function TaskLists({ selectedListIds = [], onSelectLists }: TaskListsProps) {
-  const { state, createList, updateList, deleteList, createTask } = useApp();
+  const { state, createList, createTask } = useApp();
   const [isCreating, setIsCreating] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
   const [isCreatingTask, setIsCreatingTask] = useState(false);
   const [isListsExpanded, setIsListsExpanded] = useState(true);
-  const [listToDelete, setListToDelete] = useState<{ id: string; title: string; taskCount: number } | null>(null);
   const [newListTitle, setNewListTitle] = useState('');
-  const [editingListId, setEditingListId] = useState<string | null>(null);
-  const [editingTitle, setEditingTitle] = useState('');
 
   const handleListSelection = (listId: string) => {
     const newSelection = selectedListIds.includes(listId)
@@ -57,57 +50,6 @@ export function TaskLists({ selectedListIds = [], onSelectLists }: TaskListsProp
       setNewListTitle('');
       setIsCreating(false);
     }
-  };
-
-  const handleStartEdit = (listId: string, currentTitle: string) => {
-    setEditingListId(listId);
-    setEditingTitle(currentTitle);
-    setIsEditing(true);
-  };
-
-  const handleSaveEdit = () => {
-    if (editingTitle.trim() && editingListId) {
-      updateList(editingListId, editingTitle.trim());
-      setEditingListId(null);
-      setEditingTitle('');
-      setIsEditing(false);
-    }
-  };
-
-  const handleCancelEdit = () => {
-    setEditingListId(null);
-    setEditingTitle('');
-    setIsEditing(false);
-  };
-
-  const handleStartDelete = (listId: string, listTitle: string) => {
-    const taskCount = state.tasks.filter(task => task.listId === listId).length;
-    if (taskCount > 0) {
-      setListToDelete({ id: listId, title: listTitle, taskCount });
-      setIsDeleting(true);
-    } else {
-      // Delete immediately if no tasks
-      deleteList(listId);
-      if (selectedListIds.includes(listId)) {
-        onSelectLists(selectedListIds.filter(id => id !== listId));
-      }
-    }
-  };
-
-  const handleConfirmDelete = () => {
-    if (listToDelete) {
-      deleteList(listToDelete.id);
-      if (selectedListIds.includes(listToDelete.id)) {
-        onSelectLists(selectedListIds.filter(id => id !== listToDelete.id));
-      }
-      setListToDelete(null);
-      setIsDeleting(false);
-    }
-  };
-
-  const handleCancelDelete = () => {
-    setListToDelete(null);
-    setIsDeleting(false);
   };
 
   return (
@@ -315,81 +257,6 @@ export function TaskLists({ selectedListIds = [], onSelectLists }: TaskListsProp
             disabled={!newListTitle.trim()}
           >
             Create
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-      {/* Edit List Dialog */}
-      <Dialog 
-        open={isEditing} 
-        onClose={handleCancelEdit}
-        maxWidth="xs"
-        fullWidth
-      >
-        <DialogTitle>Edit List</DialogTitle>
-        <DialogContent>
-          <TextField
-            autoFocus
-            fullWidth
-            label="List Name"
-            value={editingTitle}
-            onChange={(e) => setEditingTitle(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && editingTitle.trim()) {
-                handleSaveEdit();
-              } else if (e.key === 'Escape') {
-                handleCancelEdit();
-              }
-            }}
-            sx={{ mt: 1 }}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCancelEdit}>
-            Cancel
-          </Button>
-          <Button 
-            onClick={handleSaveEdit}
-            variant="contained"
-            disabled={!editingTitle.trim()}
-          >
-            Save
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-      {/* Delete List Confirmation Dialog */}
-      <Dialog
-        open={isDeleting}
-        onClose={handleCancelDelete}
-        maxWidth="xs"
-        fullWidth
-      >
-        <DialogTitle>Delete List</DialogTitle>
-        <DialogContent>
-          {listToDelete && (
-            <>
-              <Typography>
-                Are you sure you want to delete "{listToDelete.title}"?
-              </Typography>
-              {listToDelete.taskCount > 0 && (
-                <Typography color="error" sx={{ mt: 1 }}>
-                  This will permanently delete all tasks in this list.
-                </Typography>
-              )}
-            </>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCancelDelete}>
-            Cancel
-          </Button>
-          <Button 
-            onClick={handleConfirmDelete}
-            variant="contained"
-            color="error"
-          >
-            Delete
           </Button>
         </DialogActions>
       </Dialog>

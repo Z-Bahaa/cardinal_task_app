@@ -3,10 +3,9 @@ import { Menu as MenuIcon } from '@mui/icons-material';
 
 interface HeaderProps {
   onMenuClick: () => void;
-  isSidebarOpen: boolean;
 }
 
-export function Header({ onMenuClick, isSidebarOpen }: HeaderProps) {
+export function Header({ onMenuClick }: HeaderProps) {
   return (
     <AppBar
       position="fixed"

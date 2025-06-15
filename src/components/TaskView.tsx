@@ -15,15 +15,10 @@ import {
   Menu,
   MenuItem,
   Divider,
-  Select,
-  FormControl,
-  InputLabel,
 } from '@mui/material';
 import {
   Add as AddIcon,
   AddCircleOutline as AddCircleOutlineIcon,
-  ExpandMore as ExpandMoreIcon,
-  ExpandLess as ExpandLessIcon,
   Delete as DeleteIcon,
   Edit as EditIcon,
   KeyboardArrowDown as KeyboardArrowDownIcon,
@@ -262,7 +257,7 @@ function TaskItem({ task, onUpdate, onDelete }: {
               <TaskDialog
                 open={isEditing}
                 onClose={() => setIsEditing(false)}
-                onSubmit={(listId, title, description) => {
+                onSubmit={(_listId, title, description) => {
                   onUpdate({ title, description });
                   setIsEditing(false);
                 }}
@@ -477,50 +472,6 @@ export function TaskView({ selectedListIds, onSelectLists }: TaskViewProps) {
   const [activeMenuListId, setActiveMenuListId] = useState<string | null>(null);
   const [isDeletingList, setIsDeletingList] = useState(false);
   const [sortOption, setSortOption] = useState<SortOption>('newest');
-
-  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, listId: string) => {
-    setMenuAnchorEl(event.currentTarget);
-    setActiveMenuListId(listId);
-  };
-
-  const handleMenuClose = () => {
-    setMenuAnchorEl(null);
-    setActiveMenuListId(null);
-  };
-
-  const handleStartEditList = (listId: string, currentTitle: string) => {
-    setEditingListId(listId);
-    setEditingTitle(currentTitle);
-    setIsEditingList(true);
-    handleMenuClose();
-  };
-
-  const handleSaveEditList = () => {
-    if (editingTitle.trim() && editingListId) {
-      updateList(editingListId, editingTitle.trim());
-      setEditingListId(null);
-      setEditingTitle('');
-      setIsEditingList(false);
-    }
-  };
-
-  const handleCancelEditList = () => {
-    setEditingListId(null);
-    setEditingTitle('');
-    setIsEditingList(false);
-  };
-
-  const handleDeleteList = (listId: string) => {
-    const taskCount = state.tasks.filter(task => task.listId === listId).length;
-    if (taskCount > 0) {
-      // Show confirmation dialog
-      setIsDeleteAllDialogOpen(true);
-    } else {
-      // Delete immediately if no tasks
-      deleteList(listId);
-    }
-    handleMenuClose();
-  };
 
   const getSortedTasks = (tasks: Task[]) => {
     return [...tasks].sort((a, b) => {
@@ -819,29 +770,29 @@ export function TaskView({ selectedListIds, onSelectLists }: TaskViewProps) {
                     <Typography variant="body1" color="text.secondary">
                       Nice work!
                     </Typography>
-      </Box>
+                  </Box>
 
                   {/* Completed Tasks Section */}
-            <Box 
-              sx={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: 1, 
+                  <Box 
+                    sx={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      gap: 1, 
                       mb: 1,
-                cursor: 'pointer',
-                '&:hover': {
-                  opacity: 0.8
-                }
-              }}
+                      cursor: 'pointer',
+                      '&:hover': {
+                        opacity: 0.8
+                      }
+                    }}
                     onClick={() => setShowCompleted(!showCompleted)}
-            >
+                  >
                     <Typography variant="subtitle2" color="text.secondary">
                       Completed ({completedTasks.length})
-              </Typography>
-              <IconButton size="small">
+                    </Typography>
+                    <IconButton size="small">
                       {showCompleted ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
-              </IconButton>
-            </Box>
+                    </IconButton>
+                  </Box>
 
                   <Collapse in={showCompleted}>
                     <Box sx={{ opacity: 0.7 }}>
@@ -861,56 +812,56 @@ export function TaskView({ selectedListIds, onSelectLists }: TaskViewProps) {
                   {/* Active Tasks Section - Always visible */}
                   {incompleteTasks.length > 0 && (
                     <>
-            {incompleteTasks.map((task) => (
-              <TaskItem
-                key={task.id}
-                task={task}
-                onUpdate={(updates) => updateTask(task.id, updates)}
-                onDelete={() => deleteTask(task.id)}
-              />
-            ))}
-        </>
-      )}
+                      {incompleteTasks.map((task) => (
+                        <TaskItem
+                          key={task.id}
+                          task={task}
+                          onUpdate={(updates) => updateTask(task.id, updates)}
+                          onDelete={() => deleteTask(task.id)}
+                        />
+                      ))}
+                    </>
+                  )}
+                </>
+              )}
 
-      {/* Completed Tasks Section */}
-      {completedTasks.length > 0 && (
-        <>
-            <Box 
-              sx={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: 1,
-                          mt: 2,
-                          mb: 1,
-                cursor: 'pointer',
-                '&:hover': {
-                  opacity: 0.8
-                }
-              }}
-              onClick={() => setShowCompleted(!showCompleted)}
-            >
-                        <Typography variant="subtitle2" color="text.secondary">
-                Completed ({completedTasks.length})
-              </Typography>
-              <IconButton size="small">
-                {showCompleted ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
-              </IconButton>
-            </Box>
+              {/* Completed Tasks Section */}
+              {completedTasks.length > 0 && (
+                <>
+                  <Box 
+                    sx={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      gap: 1,
+                      mt: 2,
+                      mb: 1,
+                      cursor: 'pointer',
+                      '&:hover': {
+                        opacity: 0.8
+                      }
+                    }}
+                    onClick={() => setShowCompleted(!showCompleted)}
+                  >
+                    <Typography variant="subtitle2" color="text.secondary">
+                      Completed ({completedTasks.length})
+                    </Typography>
+                    <IconButton size="small">
+                      {showCompleted ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+                    </IconButton>
+                  </Box>
 
-          <Collapse in={showCompleted}>
-            <Box sx={{ opacity: 0.7 }}>
-              {completedTasks.map((task) => (
-                <TaskItem
-                  key={task.id}
-                  task={task}
-                  onUpdate={(updates) => updateTask(task.id, updates)}
-                  onDelete={() => deleteTask(task.id)}
-                />
-              ))}
-            </Box>
-          </Collapse>
-        </>
-      )}
+                  <Collapse in={showCompleted}>
+                    <Box sx={{ opacity: 0.7 }}>
+                      {completedTasks.map((task) => (
+                        <TaskItem
+                          key={task.id}
+                          task={task}
+                          onUpdate={(updates) => updateTask(task.id, updates)}
+                          onDelete={() => deleteTask(task.id)}
+                        />
+                      ))}
+                    </Box>
+                  </Collapse>
                 </>
               )}
             </Box>
@@ -1024,29 +975,29 @@ export function TaskView({ selectedListIds, onSelectLists }: TaskViewProps) {
             </Dialog>
 
             {/* Delete All Tasks Confirmation Dialog */}
-      <Dialog
+            <Dialog
               open={isDeleteAllDialogOpen && !isDeletingList}
               onClose={() => {
                 setIsDeleteAllDialogOpen(false);
                 setActiveMenuListId(null);
               }}
-        maxWidth="xs"
-        fullWidth
-      >
-        <DialogTitle>Delete All Completed Tasks</DialogTitle>
-        <DialogContent>
-          <Typography>
+              maxWidth="xs"
+              fullWidth
+            >
+              <DialogTitle>Delete All Completed Tasks</DialogTitle>
+              <DialogContent>
+                <Typography>
                   Are you sure you want to delete all completed tasks in the selected list? This action cannot be undone.
-          </Typography>
-        </DialogContent>
-        <DialogActions>
+                </Typography>
+              </DialogContent>
+              <DialogActions>
                 <Button onClick={() => {
                   setIsDeleteAllDialogOpen(false);
                   setActiveMenuListId(null);
                 }}>
-            Cancel
-          </Button>
-          <Button 
+                  Cancel
+                </Button>
+                <Button 
                   onClick={() => {
                     const currentListId = selectedListIds[0];
                     const tasksToDelete = state.tasks.filter(
@@ -1056,13 +1007,13 @@ export function TaskView({ selectedListIds, onSelectLists }: TaskViewProps) {
                     setIsDeleteAllDialogOpen(false);
                     setActiveMenuListId(null);
                   }}
-            variant="contained"
-            color="error"
-          >
-            Delete All
-          </Button>
-        </DialogActions>
-      </Dialog>
+                  variant="contained"
+                  color="error"
+                >
+                  Delete All
+                </Button>
+              </DialogActions>
+            </Dialog>
           </Box>
         );
       })}

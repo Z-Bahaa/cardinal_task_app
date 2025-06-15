@@ -82,11 +82,6 @@ export function App() {
     }
   }, [state.tasks, createSubtask]);
 
-  const handleSidebarToggle = () => {
-    setIsSidebarTransitioning(true);
-    setIsSidebarOpen(!isSidebarOpen);
-  };
-
   // Listen for transition end to update visibility
   const handleTransitionEnd = () => {
     setIsSidebarTransitioning(false);
@@ -96,10 +91,7 @@ export function App() {
     <>
       <CssBaseline />
       <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', bgcolor: 'background.default' }}>
-        <Header 
-          onMenuClick={handleSidebarToggle} 
-          isSidebarOpen={isSidebarOpen}
-        />
+        <Header onMenuClick={() => setIsSidebarOpen((open) => !open)} />
         <Box
           sx={{
             display: 'flex',
