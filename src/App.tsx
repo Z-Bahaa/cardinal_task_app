@@ -5,12 +5,23 @@ import { TaskView } from './components/TaskView';
 import { Header } from './components/Header';
 import { useState, useEffect } from 'react';
 
+const SELECTED_LISTS_KEY = 'selectedListIds';
+const HAS_INITIALIZED_KEY = 'hasInitialized';
+
 export function App() {
   const { state, createList, createTask, createSubtask, updateTask } = useApp();
-  const [selectedListIds, setSelectedListIds] = useState<string[]>([]);
+  const [selectedListIds, setSelectedListIds] = useState<string[]>(() => {
+    const saved = localStorage.getItem(SELECTED_LISTS_KEY);
+    return saved ? JSON.parse(saved) : [];
+  });
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isSidebarTransitioning, setIsSidebarTransitioning] = useState(false);
   const isMobile = useMediaQuery(useTheme().breakpoints.down('md'));
+
+  // Save selected lists to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem(SELECTED_LISTS_KEY, JSON.stringify(selectedListIds));
+  }, [selectedListIds]);
 
   useEffect(() => {
     if (isMobile) {
@@ -19,13 +30,15 @@ export function App() {
   }, [isMobile]);
 
   useEffect(() => {
-    // Initialize list selection or create default list
-    if (state.lists.length === 0) {
-      // Create default list
-      createList('My Tasks');
+    // Check if this is the first time the app is being used
+    const hasInitialized = localStorage.getItem(HAS_INITIALIZED_KEY);
+    
+    if (!hasInitialized) {
+      // First time using the app, create default list and mark as initialized
+      const defaultList = createList('My Tasks');
+      setSelectedListIds([defaultList.id]);
+      localStorage.setItem(HAS_INITIALIZED_KEY, 'true');
     }
-    // Remove the automatic selection of the first list
-    // This allows users to deselect all lists if they want to
   }, [state.lists, createList]);
 
   // Create example tasks after the default list is created
