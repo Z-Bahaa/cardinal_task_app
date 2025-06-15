@@ -375,16 +375,28 @@ function TaskItem({ task, onUpdate, onDelete }: {
                     </>
                   )}
                 </Box>
-                <Box sx={{ display: 'flex', gap: 0.5 }}>
+                <Box sx={{ display: 'flex', gap: 0.25 }}>
                   <IconButton
                     size="small"
                     onClick={() => handleStartEditSubtask(subtask)}
+                    sx={{ 
+                      padding: '4px',
+                      '& .MuiSvgIcon-root': {
+                        fontSize: '1rem'
+                      }
+                    }}
                   >
                     <EditIcon />
                   </IconButton>
                   <IconButton
                     size="small"
                     onClick={() => handleDeleteSubtask(subtask.id)}
+                    sx={{ 
+                      padding: '4px',
+                      '& .MuiSvgIcon-root': {
+                        fontSize: '1rem'
+                      }
+                    }}
                   >
                     <DeleteIcon />
                   </IconButton>
