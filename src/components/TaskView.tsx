@@ -299,7 +299,23 @@ function TaskItem({ task, onUpdate, onDelete }: {
               </>
             )}
           </Box>
-          <Box sx={{ display: 'flex', gap: 0.5 }}>
+          <Box sx={{ display: 'flex', gap: 0.1, marginRight: -0.75 }}>
+            <IconButton
+              size="small"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsEditing(true);
+              }}
+              disabled={isEditing}
+              sx={{
+                padding: '5px',
+                '& .MuiSvgIcon-root': {
+                  fontSize: '1.25rem'
+                }
+              }}
+            >
+              <EditIcon />
+            </IconButton>
             <IconButton
               size="small"
               onClick={(e) => {
@@ -307,6 +323,12 @@ function TaskItem({ task, onUpdate, onDelete }: {
                 setMenuAnchorEl(e.currentTarget);
               }}
               disabled={isEditing}
+              sx={{
+                padding: '5px',
+                '& .MuiSvgIcon-root': {
+                  fontSize: '1.25rem'
+                }
+              }}
             >
               <MoreVertIcon />
             </IconButton>
@@ -420,15 +442,6 @@ function TaskItem({ task, onUpdate, onDelete }: {
           open={Boolean(menuAnchorEl)}
           onClose={() => setMenuAnchorEl(null)}
         >
-          <MenuItem 
-            onClick={() => {
-              setIsEditing(true);
-              setMenuAnchorEl(null);
-            }}
-          >
-            <EditIcon sx={{ mr: 1, fontSize: '1.2rem' }} />
-            Edit Task
-          </MenuItem>
           <MenuItem 
             onClick={() => {
               if (task.subtasks.length > 0) {
