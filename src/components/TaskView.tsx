@@ -232,33 +232,41 @@ function TaskItem({ task, onUpdate, onDelete }: {
   };
 
   return (
-    <Card sx={{ 
-      mb: 2,
-      bgcolor: 'background.default',
-      boxShadow: 'none',
-      cursor: 'pointer',
-      '&:hover': {
-        bgcolor: 'action.hover'
-      }
-    }}
-    onClick={() => setIsExpanded(!isExpanded)}
+    <Card 
+      sx={{ 
+        mb: 2,
+        bgcolor: 'background.default',
+        boxShadow: 'none',
+        cursor: isEditing ? 'default' : 'pointer',
+        '&:hover': {
+          bgcolor: isEditing ? 'background.default' : 'action.hover'
+        },
+        pointerEvents: isEditing ? 'none' : 'auto',
+        position: 'relative'
+      }}
+      onClick={() => !isEditing && setIsExpanded(!isExpanded)}
     >
       <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
         <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1 }}>
           <Checkbox
             checked={task.completed}
             onChange={(e) => {
-              e.stopPropagation(); // Prevent task expansion when clicking checkbox
+              e.stopPropagation();
               handleTaskCompletion(e.target.checked);
             }}
+            disabled={isEditing}
           />
           <Box sx={{ flex: 1 }}>
             {isEditing ? (
               <TaskDialog
                 open={isEditing}
                 onClose={() => setIsEditing(false)}
-                onSubmit={(_listId, title, description) => {
-                  onUpdate({ title, description });
+                onSubmit={(listId, title, description) => {
+                  onUpdate({ 
+                    title, 
+                    description,
+                    listId // Include the listId in the update
+                  });
                   setIsEditing(false);
                 }}
                 initialValues={{
@@ -294,18 +302,20 @@ function TaskItem({ task, onUpdate, onDelete }: {
             <IconButton
               size="small"
               onClick={(e) => {
-                e.stopPropagation(); // Prevent task expansion when clicking edit
+                e.stopPropagation();
                 setIsEditing(true);
               }}
+              disabled={isEditing}
             >
               <EditIcon />
             </IconButton>
             <IconButton
               size="small"
               onClick={(e) => {
-                e.stopPropagation(); // Prevent task expansion when clicking menu
+                e.stopPropagation();
                 setMenuAnchorEl(e.currentTarget);
               }}
+              disabled={isEditing}
             >
               <MoreVertIcon />
             </IconButton>
