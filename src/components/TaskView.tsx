@@ -225,8 +225,12 @@ function TaskItem({ task, onUpdate, onDelete }: {
   };
 
   return (
-    <Card sx={{ mb: 2 }}>
-      <CardContent>
+    <Card sx={{ 
+      mb: 2,
+      bgcolor: 'background.default',
+      boxShadow: 'none'
+    }}>
+      <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
         <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1 }}>
           <Checkbox
             checked={task.completed}
@@ -560,20 +564,21 @@ export function TaskView({ selectedListIds, onSelectLists }: TaskViewProps) {
             </Box>
 
         <Button
-              startIcon={<AddCircleOutlineIcon sx={{ color: 'primary.main' }} />}
-              variant="text"
+          startIcon={<AddCircleOutlineIcon sx={{ color: 'primary.main' }} />}
+          variant="text"
           onClick={() => setIsCreating(true)}
-              sx={{ 
-                justifyContent: 'flex-start',
-                textAlign: 'left',
-                pl: -2,
-                ml: -1.5,
-                mr: -1,
-                color: 'primary.main',
-                '&:hover': {
-                  bgcolor: 'action.hover'
-                }
-              }}
+          sx={{ 
+            justifyContent: 'flex-start',
+            textAlign: 'left',
+            pl: -2,
+            ml: -1.5,
+            mr: -1,
+            mb: 2,
+            color: 'primary.main',
+            '&:hover': {
+              bgcolor: 'action.hover'
+            }
+          }}
         >
           Add Task
         </Button>
