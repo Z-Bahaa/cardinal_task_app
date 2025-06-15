@@ -123,7 +123,7 @@ export function App() {
                 bgcolor: 'rgba(0, 0, 0, 0.5)',
                 zIndex: 1,
                 transition: theme => theme.transitions.create('opacity', {
-                  duration: theme.transitions.duration.shortest - 50,
+                  duration: theme.transitions.duration.shortest,
                   easing: theme.transitions.easing.easeInOut,
                 }),
               }}
@@ -163,7 +163,7 @@ export function App() {
                 opacity: isSidebarOpen && !isSidebarTransitioning ? 1 : 0,
                 transform: `translateX(${isSidebarOpen ? 0 : -20}px)`,
                 transition: theme => theme.transitions.create(['opacity', 'transform'], {
-                  duration: theme.transitions.duration.shortest - 50,
+                  duration: theme.transitions.duration.shortest,
                   easing: theme.transitions.easing.easeInOut,
                 }),
                 px: 2,

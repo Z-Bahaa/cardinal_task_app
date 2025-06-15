@@ -534,7 +534,12 @@ export function TaskView({ selectedListIds, onSelectLists }: TaskViewProps) {
           height: '100%',
           mt: '24vh',
           gap: 2,
-          bgcolor: 'background.paper',
+          bgcolor: {
+            xs: 'background.paper',
+            sm: 'background.paper',
+            md: 'transparent',
+            lg: 'transparent',
+          },
           borderRadius: 2,
           p: 4
         }}
