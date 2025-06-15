@@ -27,6 +27,7 @@ import {
   MoreVert as MoreVertIcon,
   AssignmentOutlined as AssignmentOutlinedIcon,
   CheckCircleOutline as CheckCircleOutlineIcon,
+  Star as StarIcon,
 } from '@mui/icons-material';
 import { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
@@ -303,16 +304,6 @@ function TaskItem({ task, onUpdate, onDelete }: {
               size="small"
               onClick={(e) => {
                 e.stopPropagation();
-                setIsEditing(true);
-              }}
-              disabled={isEditing}
-            >
-              <EditIcon />
-            </IconButton>
-            <IconButton
-              size="small"
-              onClick={(e) => {
-                e.stopPropagation();
                 setMenuAnchorEl(e.currentTarget);
               }}
               disabled={isEditing}
@@ -429,6 +420,15 @@ function TaskItem({ task, onUpdate, onDelete }: {
           open={Boolean(menuAnchorEl)}
           onClose={() => setMenuAnchorEl(null)}
         >
+          <MenuItem 
+            onClick={() => {
+              setIsEditing(true);
+              setMenuAnchorEl(null);
+            }}
+          >
+            <EditIcon sx={{ mr: 1, fontSize: '1.2rem' }} />
+            Edit Task
+          </MenuItem>
           <MenuItem 
             onClick={() => {
               if (task.subtasks.length > 0) {
