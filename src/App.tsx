@@ -164,7 +164,7 @@ export function App() {
                   duration: theme.transitions.duration.standard,
                   easing: theme.transitions.easing.easeInOut,
                 }),
-                px: 3,
+                px: 2,
                 py: 1,
                 bgcolor: 'background.default',
                 minWidth: { xs: isSidebarOpen ? '50%' : 0 },
@@ -192,12 +192,12 @@ export function App() {
                 duration: theme.transitions.duration.standard,
                 easing: theme.transitions.easing.easeInOut,
               }),
-              px: 2,
+              px: 0,
               position: { xs: 'relative', md: 'static' },
               zIndex: { xs: 0, md: 'auto' },
             }}
           >
-            <Container maxWidth="xl" sx={{ py: 3 }}>
+            <Container maxWidth="xl" sx={{ p: 0 }}>
               <TaskView selectedListIds={selectedListIds} />
             </Container>
           </Box>
