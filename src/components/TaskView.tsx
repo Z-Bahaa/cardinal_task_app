@@ -28,6 +28,7 @@ import {
   ListAlt as ListAltIcon,
   MoreVert as MoreVertIcon,
   AssignmentOutlined as AssignmentOutlinedIcon,
+  CheckCircleOutline as CheckCircleOutlineIcon,
 } from '@mui/icons-material';
 import { useState } from 'react';
 import { useApp } from '../context/AppContext';
@@ -528,9 +529,9 @@ export function TaskView({ selectedListIds, onSelectLists }: TaskViewProps) {
             }}
           >
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-              <Typography variant="h5" sx={{ flex: 1 }}>
-                {selectedList?.title}
-              </Typography>
+        <Typography variant="h5" sx={{ flex: 1 }}>
+          {selectedList?.title}
+        </Typography>
               <IconButton
                 sx={{mr: -1}}
                 size="small"
@@ -543,10 +544,10 @@ export function TaskView({ selectedListIds, onSelectLists }: TaskViewProps) {
               </IconButton>
             </Box>
 
-            <Button
+        <Button
               startIcon={<AddCircleOutlineIcon sx={{ color: 'primary.main' }} />}
               variant="text"
-              onClick={() => setIsCreating(true)}
+          onClick={() => setIsCreating(true)}
               sx={{ 
                 justifyContent: 'flex-start',
                 textAlign: 'left',
@@ -558,18 +559,20 @@ export function TaskView({ selectedListIds, onSelectLists }: TaskViewProps) {
                   bgcolor: 'action.hover'
                 }
               }}
-            >
-              Add Task
-            </Button>
+        >
+          Add Task
+        </Button>
 
             <Box sx={{ 
               flex: 1,
               overflow: 'auto',
               '&::-webkit-scrollbar': {
                 width: '8px',
+                marginRight: '-8px'
               },
               '&::-webkit-scrollbar-track': {
                 background: 'transparent',
+                marginRight: '-8px'
               },
               '&::-webkit-scrollbar-thumb': {
                 background: 'action.disabled',
@@ -577,7 +580,10 @@ export function TaskView({ selectedListIds, onSelectLists }: TaskViewProps) {
                 '&:hover': {
                   background: 'action.disabledBackground',
                 },
+                marginRight: '-8px'
               },
+              scrollbarGutter: 'stable',
+              scrollbarWidth: 'thin'
             }}>
               {tasks.length === 0 ? (
                 <Box
@@ -604,12 +610,59 @@ export function TaskView({ selectedListIds, onSelectLists }: TaskViewProps) {
                     Add your to-dos and to-donts
                   </Typography>
                 </Box>
-              ) : (
+              ) : incompleteTasks.length === 0 && completedTasks.length > 0 ? (
                 <>
-                  {/* Active Tasks Section - Always visible */}
-                  {incompleteTasks.length > 0 && (
-                    <>
-                      {incompleteTasks.map((task) => (
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      mt: '15vh',
+                      mb: 4,
+                      gap: 2,
+                      opacity: 0.7
+                    }}
+                  >
+                    <CheckCircleOutlineIcon 
+                      sx={{ 
+                        fontSize: '4rem',
+                        color: 'success.main'
+                      }} 
+                    />
+                    <Typography variant="h6" color="text.secondary">
+                      All tasks are complete
+                    </Typography>
+                    <Typography variant="body1" color="text.secondary">
+                      Nice work!
+                    </Typography>
+      </Box>
+
+                  {/* Completed Tasks Section */}
+            <Box 
+              sx={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: 1, 
+                      mb: 1,
+                cursor: 'pointer',
+                '&:hover': {
+                  opacity: 0.8
+                }
+              }}
+                    onClick={() => setShowCompleted(!showCompleted)}
+            >
+                    <Typography variant="subtitle2" color="text.secondary">
+                      Completed ({completedTasks.length})
+              </Typography>
+              <IconButton size="small">
+                      {showCompleted ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+              </IconButton>
+            </Box>
+
+                  <Collapse in={showCompleted}>
+                    <Box sx={{ opacity: 0.7 }}>
+                      {completedTasks.map((task) => (
                         <TaskItem
                           key={task.id}
                           task={task}
@@ -617,48 +670,64 @@ export function TaskView({ selectedListIds, onSelectLists }: TaskViewProps) {
                           onDelete={() => deleteTask(task.id)}
                         />
                       ))}
-                    </>
-                  )}
-
-                  {/* Completed Tasks Section */}
-                  {completedTasks.length > 0 && (
+                    </Box>
+                  </Collapse>
+                </>
+              ) : (
+                <>
+                  {/* Active Tasks Section - Always visible */}
+                  {incompleteTasks.length > 0 && (
                     <>
-                      <Box 
-                        sx={{ 
-                          display: 'flex', 
-                          alignItems: 'center', 
-                          gap: 1,
+            {incompleteTasks.map((task) => (
+              <TaskItem
+                key={task.id}
+                task={task}
+                onUpdate={(updates) => updateTask(task.id, updates)}
+                onDelete={() => deleteTask(task.id)}
+              />
+            ))}
+        </>
+      )}
+
+      {/* Completed Tasks Section */}
+      {completedTasks.length > 0 && (
+        <>
+            <Box 
+              sx={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: 1,
                           mt: 2,
                           mb: 1,
-                          cursor: 'pointer',
-                          '&:hover': {
-                            opacity: 0.8
-                          }
-                        }}
-                        onClick={() => setShowCompleted(!showCompleted)}
-                      >
+                cursor: 'pointer',
+                '&:hover': {
+                  opacity: 0.8
+                }
+              }}
+              onClick={() => setShowCompleted(!showCompleted)}
+            >
                         <Typography variant="subtitle2" color="text.secondary">
-                          Completed ({completedTasks.length})
-                        </Typography>
-                        <IconButton size="small">
-                          {showCompleted ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
-                        </IconButton>
-                      </Box>
+                Completed ({completedTasks.length})
+              </Typography>
+              <IconButton size="small">
+                {showCompleted ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+              </IconButton>
+            </Box>
 
-                      <Collapse in={showCompleted}>
-                        <Box sx={{ opacity: 0.7 }}>
-                          {completedTasks.map((task) => (
-                            <TaskItem
-                              key={task.id}
-                              task={task}
-                              onUpdate={(updates) => updateTask(task.id, updates)}
-                              onDelete={() => deleteTask(task.id)}
-                            />
-                          ))}
-                        </Box>
-                      </Collapse>
-                    </>
-                  )}
+          <Collapse in={showCompleted}>
+            <Box sx={{ opacity: 0.7 }}>
+              {completedTasks.map((task) => (
+                <TaskItem
+                  key={task.id}
+                  task={task}
+                  onUpdate={(updates) => updateTask(task.id, updates)}
+                  onDelete={() => deleteTask(task.id)}
+                />
+              ))}
+            </Box>
+          </Collapse>
+        </>
+      )}
                 </>
               )}
             </Box>
@@ -812,29 +881,29 @@ export function TaskView({ selectedListIds, onSelectLists }: TaskViewProps) {
             </Dialog>
 
             {/* Delete All Tasks Confirmation Dialog */}
-            <Dialog
+      <Dialog
               open={isDeleteAllDialogOpen && !isDeletingList}
               onClose={() => {
                 setIsDeleteAllDialogOpen(false);
                 setActiveMenuListId(null);
               }}
-              maxWidth="xs"
-              fullWidth
-            >
-              <DialogTitle>Delete All Completed Tasks</DialogTitle>
-              <DialogContent>
-                <Typography>
+        maxWidth="xs"
+        fullWidth
+      >
+        <DialogTitle>Delete All Completed Tasks</DialogTitle>
+        <DialogContent>
+          <Typography>
                   Are you sure you want to delete all completed tasks in the selected list? This action cannot be undone.
-                </Typography>
-              </DialogContent>
-              <DialogActions>
+          </Typography>
+        </DialogContent>
+        <DialogActions>
                 <Button onClick={() => {
                   setIsDeleteAllDialogOpen(false);
                   setActiveMenuListId(null);
                 }}>
-                  Cancel
-                </Button>
-                <Button 
+            Cancel
+          </Button>
+          <Button 
                   onClick={() => {
                     const currentListId = selectedListIds[0];
                     const tasksToDelete = state.tasks.filter(
@@ -844,13 +913,13 @@ export function TaskView({ selectedListIds, onSelectLists }: TaskViewProps) {
                     setIsDeleteAllDialogOpen(false);
                     setActiveMenuListId(null);
                   }}
-                  variant="contained"
-                  color="error"
-                >
-                  Delete All
-                </Button>
-              </DialogActions>
-            </Dialog>
+            variant="contained"
+            color="error"
+          >
+            Delete All
+          </Button>
+        </DialogActions>
+      </Dialog>
           </Box>
         );
       })}
