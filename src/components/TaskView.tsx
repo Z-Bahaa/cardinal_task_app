@@ -33,7 +33,7 @@ import {
   AssignmentOutlined as AssignmentOutlinedIcon,
   CheckCircleOutline as CheckCircleOutlineIcon,
 } from '@mui/icons-material';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import type { Task, Subtask } from '../types/task';
 
@@ -53,6 +53,22 @@ export function TaskDialog({ open, onClose, onSubmit, initialValues, initialList
   const [title, setTitle] = useState(initialValues?.title || '');
   const [description, setDescription] = useState(initialValues?.description || '');
   const [selectedListId, setSelectedListId] = useState(initialListId || state.lists[0]?.id || '');
+
+  // Update selectedListId when initialListId changes
+  useEffect(() => {
+    if (initialListId) {
+      setSelectedListId(initialListId);
+    }
+  }, [initialListId]);
+
+  // Reset form when dialog opens/closes
+  useEffect(() => {
+    if (open) {
+      setTitle(initialValues?.title || '');
+      setDescription(initialValues?.description || '');
+      setSelectedListId(initialListId || state.lists[0]?.id || '');
+    }
+  }, [open, initialValues, initialListId, state.lists]);
 
   const handleSubmit = () => {
     onSubmit(selectedListId, title, description);
@@ -715,7 +731,10 @@ export function TaskView({ selectedListIds, onSelectLists }: TaskViewProps) {
             <Button
               startIcon={<AddCircleOutlineIcon sx={{ color: 'primary.main' }} />}
               variant="text"
-              onClick={() => setIsCreating(true)}
+              onClick={() => {
+                setIsCreating(true);
+                setActiveMenuListId(listId);
+              }}
               sx={{ 
                 justifyContent: 'flex-start',
                 textAlign: 'left',
@@ -1050,12 +1069,16 @@ export function TaskView({ selectedListIds, onSelectLists }: TaskViewProps) {
 
       <TaskDialog
         open={isCreating}
-        onClose={() => setIsCreating(false)}
+        onClose={() => {
+          setIsCreating(false);
+          setActiveMenuListId(null);
+        }}
         onSubmit={(listId, title, description) => {
           createTask(listId, title, description);
           setIsCreating(false);
+          setActiveMenuListId(null);
         }}
-        initialListId={selectedListIds[0]}
+        initialListId={activeMenuListId || selectedListIds[0]}
       />
     </Box>
   );
