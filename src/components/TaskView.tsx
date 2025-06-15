@@ -112,6 +112,7 @@ export function TaskDialog({ open, onClose, onSubmit, initialValues, initialList
 
 interface TaskViewProps {
   selectedListIds: string[];
+  onSelectLists: (listIds: string[]) => void;
 }
 
 interface SubtaskDialogProps {
@@ -408,7 +409,7 @@ function TaskItem({ task, onUpdate, onDelete }: {
   );
 }
 
-export function TaskView({ selectedListIds }: TaskViewProps) {
+export function TaskView({ selectedListIds, onSelectLists }: TaskViewProps) {
   const { state, createTask, updateTask, deleteTask, updateList, deleteList } = useApp();
   const [isCreating, setIsCreating] = useState(false);
   const [showCompleted, setShowCompleted] = useState(false);
@@ -788,6 +789,9 @@ export function TaskView({ selectedListIds }: TaskViewProps) {
                 <Button 
                   onClick={() => {
                     if (activeMenuListId) {
+                      // First deselect the list
+                      onSelectLists(selectedListIds.filter(id => id !== activeMenuListId));
+                      // Then delete it
                       deleteList(activeMenuListId);
                       setIsDeletingList(false);
                       setActiveMenuListId(null);

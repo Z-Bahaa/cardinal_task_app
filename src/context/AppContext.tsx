@@ -5,7 +5,7 @@ import type { AppState, Task, TaskList, Subtask } from '../types/task';
 import { loadState, saveState } from '../utils/storage';
 
 type Action =
-  | { type: 'CREATE_LIST'; payload: { title: string } }
+  | { type: 'CREATE_LIST'; payload: { title: string; list: TaskList } }
   | { type: 'UPDATE_LIST'; payload: { id: string; title: string } }
   | { type: 'DELETE_LIST'; payload: { id: string } }
   | { type: 'CREATE_TASK'; payload: { listId: string; title: string; description?: string; dueDate?: string } }
@@ -17,7 +17,7 @@ type Action =
 
 interface AppContextType {
   state: AppState;
-  createList: (title: string) => void;
+  createList: (title: string) => TaskList;
   updateList: (id: string, title: string) => void;
   deleteList: (id: string) => void;
   createTask: (listId: string, title: string, description?: string, dueDate?: string) => void;
@@ -37,15 +37,9 @@ function appReducer(state: AppState, action: Action): AppState {
 
   switch (action.type) {
     case 'CREATE_LIST': {
-      const newList: TaskList = {
-        id: uuidv4(),
-        title: action.payload.title,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
       newState = {
         ...state,
-        lists: [...state.lists, newList],
+        lists: [...state.lists, action.payload.list],
       };
       break;
     }
@@ -189,8 +183,15 @@ function appReducer(state: AppState, action: Action): AppState {
 export function AppProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(appReducer, initialState);
 
-  const createList = (title: string) => {
-    dispatch({ type: 'CREATE_LIST', payload: { title } });
+  const createList = (title: string): TaskList => {
+    const newList: TaskList = {
+      id: uuidv4(),
+      title,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    dispatch({ type: 'CREATE_LIST', payload: { title, list: newList } });
+    return newList;
   };
 
   const updateList = (id: string, title: string) => {

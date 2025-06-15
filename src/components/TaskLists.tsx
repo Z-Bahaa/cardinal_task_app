@@ -52,7 +52,8 @@ export function TaskLists({ selectedListIds = [], onSelectLists }: TaskListsProp
 
   const handleCreateList = () => {
     if (newListTitle.trim()) {
-      createList(newListTitle.trim());
+      const newList = createList(newListTitle.trim());
+      onSelectLists([newList.id]);
       setNewListTitle('');
       setIsCreating(false);
     }

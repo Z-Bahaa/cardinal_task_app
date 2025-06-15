@@ -198,7 +198,10 @@ export function App() {
             }}
           >
             <Container maxWidth="xl" sx={{ p: 0 }}>
-              <TaskView selectedListIds={selectedListIds} />
+              <TaskView 
+                selectedListIds={selectedListIds} 
+                onSelectLists={setSelectedListIds}
+              />
             </Container>
           </Box>
         </Box>
