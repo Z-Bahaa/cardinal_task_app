@@ -523,9 +523,24 @@ export function TaskView({ selectedListIds, onSelectLists }: TaskViewProps) {
               flexDirection: 'column',
               bgcolor: 'background.paper',
               borderRadius: 2,
-              p: 3,
-              height: 'calc(100vh - 180px)', // Account for header and padding
-              overflow: 'hidden' // Prevent double scrollbars
+              px: 3,
+              pt: 3,
+              pb: 1,
+              height: 'fit-content',
+              maxHeight: 'calc(100vh - 120px)',
+              overflow: 'hidden',
+              '&::-webkit-scrollbar': {
+                display: 'none'
+              },
+              scrollbarWidth: 'none',
+              msOverflowStyle: 'none',
+              '& *': {
+                '&::-webkit-scrollbar': {
+                  display: 'none'
+                },
+                scrollbarWidth: 'none',
+                msOverflowStyle: 'none'
+              }
             }}
           >
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
@@ -567,23 +582,17 @@ export function TaskView({ selectedListIds, onSelectLists }: TaskViewProps) {
               flex: 1,
               overflow: 'auto',
               '&::-webkit-scrollbar': {
-                width: '8px',
-                marginRight: '-8px'
+                display: 'none'
               },
-              '&::-webkit-scrollbar-track': {
-                background: 'transparent',
-                marginRight: '-8px'
-              },
-              '&::-webkit-scrollbar-thumb': {
-                background: 'action.disabled',
-                borderRadius: '4px',
-                '&:hover': {
-                  background: 'action.disabledBackground',
+              scrollbarWidth: 'none',
+              msOverflowStyle: 'none',
+              '& *': {
+                '&::-webkit-scrollbar': {
+                  display: 'none'
                 },
-                marginRight: '-8px'
-              },
-              scrollbarGutter: 'stable',
-              scrollbarWidth: 'thin'
+                scrollbarWidth: 'none',
+                msOverflowStyle: 'none'
+              }
             }}>
               {tasks.length === 0 ? (
                 <Box
@@ -593,6 +602,7 @@ export function TaskView({ selectedListIds, onSelectLists }: TaskViewProps) {
                     alignItems: 'center',
                     justifyContent: 'center',
                     mt: '15vh',
+                    mb: '14vh',
                     gap: 2,
                     opacity: 0.7
                   }}
