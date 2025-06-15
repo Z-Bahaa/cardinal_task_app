@@ -531,7 +531,7 @@ export function TaskView({ selectedListIds, onSelectLists }: TaskViewProps) {
           {selectedList?.title}
         </Typography>
               <IconButton
-              sx={{mr: -1.25}}
+              sx={{mr: -1}}
                 size="small"
                 onClick={(e) => {
                   setMenuAnchorEl(e.currentTarget);
@@ -551,8 +551,8 @@ export function TaskView({ selectedListIds, onSelectLists }: TaskViewProps) {
             justifyContent: 'flex-start',
             textAlign: 'left',
             pl: -2,
-            ml: -1.75,
-            mr: -1.25,
+            ml: -1.5,
+            mr: -1,
             color: 'primary.main',
             '&:hover': {
               bgcolor: 'action.hover'
