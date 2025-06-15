@@ -582,7 +582,7 @@ export function TaskView({ selectedListIds, onSelectLists }: TaskViewProps) {
               maxWidth: {
                 xs: '100%',  // Remove max-width on small screens
                 sm: '100%',  // Remove max-width on small-medium screens
-                md: '70%',   // 75% width on medium screens
+                md: '60vw',   // 75% width on medium screens
                 lg: '45vw'   // Keep original max-width for large screens
               },
               display: 'flex',

@@ -161,7 +161,7 @@ export function App() {
                 opacity: isSidebarOpen && !isSidebarTransitioning ? 1 : 0,
                 transform: `translateX(${isSidebarOpen ? 0 : -20}px)`,
                 transition: theme => theme.transitions.create(['opacity', 'transform'], {
-                  duration: theme.transitions.duration.standard,
+                  duration: theme.transitions.duration.shorter,
                   easing: theme.transitions.easing.easeInOut,
                 }),
                 px: 2,
@@ -180,7 +180,8 @@ export function App() {
           <Box
             sx={{
               flex: 1,
-              mx: { xs: 1.5, md: isSidebarOpen ? '260px' : 0 },
+              ml: { xs: 1.5, md: isSidebarOpen ? '260px' : 0 },
+              mr: { xs: 1.5, },
               minHeight: { xs: 'calc(100vh - 64px)', md: 'calc(100vh - 64px)' },
               overflow: 'auto',
               '&::-webkit-scrollbar': {
