@@ -27,7 +27,6 @@ import {
   MoreVert as MoreVertIcon,
   AssignmentOutlined as AssignmentOutlinedIcon,
   CheckCircleOutline as CheckCircleOutlineIcon,
-  Star as StarIcon,
 } from '@mui/icons-material';
 import { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
