@@ -123,7 +123,7 @@ export function App() {
                 bgcolor: 'rgba(0, 0, 0, 0.5)',
                 zIndex: 1,
                 transition: theme => theme.transitions.create('opacity', {
-                  duration: theme.transitions.duration.standard,
+                  duration: theme.transitions.duration.shortest - 50,
                   easing: theme.transitions.easing.easeInOut,
                 }),
               }}
@@ -141,13 +141,15 @@ export function App() {
                 md: isSidebarOpen ? 'calc(100vh - 64px)' : 0
               },
               position: { 
-                xs: isSidebarOpen ? 'fixed' : 'relative',
+                xs: 'fixed',
                 md: 'fixed' 
               },
-              zIndex: { xs: isSidebarOpen ? 2 : 'auto', md: 'auto' },
+              top: { xs: '64px', md: '64px' },
+              left: 0,
+              zIndex: { xs: 1200, md: 'auto' },
               overflow: 'hidden',
               transition: theme => theme.transitions.create(['width', 'height'], {
-                duration: theme.transitions.duration.standard,
+                duration: theme.transitions.duration.shortest,
                 easing: theme.transitions.easing.easeInOut,
               }),
             }}
@@ -161,7 +163,7 @@ export function App() {
                 opacity: isSidebarOpen && !isSidebarTransitioning ? 1 : 0,
                 transform: `translateX(${isSidebarOpen ? 0 : -20}px)`,
                 transition: theme => theme.transitions.create(['opacity', 'transform'], {
-                  duration: theme.transitions.duration.shorter,
+                  duration: theme.transitions.duration.shortest - 50,
                   easing: theme.transitions.easing.easeInOut,
                 }),
                 px: 2,
@@ -169,6 +171,7 @@ export function App() {
                 bgcolor: 'background.default',
                 minWidth: { xs: isSidebarOpen ? '50%' : 0 },
                 visibility: isSidebarOpen || isSidebarTransitioning ? 'visible' : 'hidden',
+                boxShadow: { xs: isSidebarOpen ? 3 : 0, md: 0 },
               }}
             >
               <TaskLists
@@ -190,7 +193,7 @@ export function App() {
               scrollbarWidth: 'none',
               msOverflowStyle: 'none',
               transition: theme => theme.transitions.create('margin-left', {
-                duration: theme.transitions.duration.standard,
+                duration: theme.transitions.duration.shortest,
                 easing: theme.transitions.easing.easeInOut,
               }),
               px: 0,
