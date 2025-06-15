@@ -15,6 +15,9 @@ import {
   Menu,
   MenuItem,
   Divider,
+  Select,
+  FormControl,
+  InputLabel,
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -444,6 +447,8 @@ function TaskItem({ task, onUpdate, onDelete }: {
   );
 }
 
+type SortOption = 'oldest' | 'newest' | 'az' | 'za';
+
 export function TaskView({ selectedListIds, onSelectLists }: TaskViewProps) {
   const { state, createTask, updateTask, deleteTask, updateList, deleteList } = useApp();
   const [isCreating, setIsCreating] = useState(false);
@@ -455,6 +460,7 @@ export function TaskView({ selectedListIds, onSelectLists }: TaskViewProps) {
   const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
   const [activeMenuListId, setActiveMenuListId] = useState<string | null>(null);
   const [isDeletingList, setIsDeletingList] = useState(false);
+  const [sortOption, setSortOption] = useState<SortOption>('newest');
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, listId: string) => {
     setMenuAnchorEl(event.currentTarget);
@@ -500,6 +506,23 @@ export function TaskView({ selectedListIds, onSelectLists }: TaskViewProps) {
     handleMenuClose();
   };
 
+  const getSortedTasks = (tasks: Task[]) => {
+    return [...tasks].sort((a, b) => {
+      switch (sortOption) {
+        case 'oldest':
+          return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+        case 'newest':
+          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        case 'az':
+          return a.title.localeCompare(b.title);
+        case 'za':
+          return b.title.localeCompare(a.title);
+        default:
+          return 0;
+      }
+    });
+  };
+
   if (selectedListIds.length === 0) {
     return (
       <Box
@@ -541,8 +564,9 @@ export function TaskView({ selectedListIds, onSelectLists }: TaskViewProps) {
       {selectedListIds.map((listId) => {
         const tasks = state.tasks.filter((task) => task.listId === listId);
         const selectedList = state.lists.find((list) => list.id === listId);
-        const incompleteTasks = tasks.filter(task => !task.completed);
-        const completedTasks = tasks.filter(task => task.completed);
+        const sortedTasks = getSortedTasks(tasks);
+        const incompleteTasks = sortedTasks.filter(task => !task.completed);
+        const completedTasks = sortedTasks.filter(task => task.completed);
 
         return (
           <Box 
@@ -576,9 +600,9 @@ export function TaskView({ selectedListIds, onSelectLists }: TaskViewProps) {
             }}
           >
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-        <Typography variant="h5" sx={{ flex: 1 }}>
-          {selectedList?.title}
-        </Typography>
+              <Typography variant="h5" sx={{ flex: 1 }}>
+                {selectedList?.title}
+              </Typography>
               <IconButton
                 sx={{mr: -1}}
                 size="small"
@@ -591,25 +615,107 @@ export function TaskView({ selectedListIds, onSelectLists }: TaskViewProps) {
               </IconButton>
             </Box>
 
-        <Button
-          startIcon={<AddCircleOutlineIcon sx={{ color: 'primary.main' }} />}
-          variant="text"
-          onClick={() => setIsCreating(true)}
-          sx={{ 
-            justifyContent: 'flex-start',
-            textAlign: 'left',
-            pl: -2,
-            ml: -1.5,
-            mr: -1,
-            mb: 2,
-            color: 'primary.main',
-            '&:hover': {
-              bgcolor: 'action.hover'
-            }
-          }}
-        >
-          Add Task
-        </Button>
+            <Menu
+              anchorEl={menuAnchorEl}
+              open={Boolean(menuAnchorEl) && activeMenuListId === listId}
+              onClose={() => {
+                setMenuAnchorEl(null);
+                setActiveMenuListId(null);
+              }}
+            >
+              <Box sx={{ px: 2, py: 1 }}>
+                <Typography variant="subtitle2" color="text.secondary">
+                  Sort by
+                </Typography>
+              </Box>
+              <MenuItem onClick={() => {
+                setSortOption('oldest');
+                setMenuAnchorEl(null);
+                setActiveMenuListId(null);
+              }}
+              sx={{ pl: 3 }}
+              >
+                Oldest First
+              </MenuItem>
+              <MenuItem onClick={() => {
+                setSortOption('newest');
+                setMenuAnchorEl(null);
+                setActiveMenuListId(null);
+              }}
+              sx={{ pl: 3 }}
+              >
+                Newest First
+              </MenuItem>
+              <MenuItem onClick={() => {
+                setSortOption('az');
+                setMenuAnchorEl(null);
+                setActiveMenuListId(null);
+              }}
+              sx={{ pl: 3 }}
+              >
+                A-Z
+              </MenuItem>
+              <MenuItem onClick={() => {
+                setSortOption('za');
+                setMenuAnchorEl(null);
+                setActiveMenuListId(null);
+              }}
+              sx={{ pl: 3 }}
+              >
+                Z-A
+              </MenuItem>
+              <Divider />
+              <MenuItem onClick={() => {
+                setEditingListId(listId);
+                setEditingTitle(selectedList?.title || '');
+                setIsEditingList(true);
+                setMenuAnchorEl(null);
+                setActiveMenuListId(null);
+              }}>
+                <EditIcon sx={{ mr: 1, fontSize: '1.2rem' }} />
+                Rename List
+              </MenuItem>
+              <MenuItem onClick={() => {
+                setIsDeletingList(true);
+                setActiveMenuListId(listId);
+                setMenuAnchorEl(null);
+              }}>
+                <DeleteIcon sx={{ mr: 1, fontSize: '1.2rem' }} />
+                Delete List
+              </MenuItem>
+              <Divider />
+              <MenuItem 
+                onClick={() => {
+                  setIsDeleteAllDialogOpen(true);
+                  setActiveMenuListId(null);
+                  setMenuAnchorEl(null);
+                }}
+                sx={{ color: 'error.main' }}
+              >
+                <DeleteIcon sx={{ mr: 1, fontSize: '1.2rem', color: 'error.main' }} />
+                Delete Completed Tasks
+              </MenuItem>
+            </Menu>
+
+            <Button
+              startIcon={<AddCircleOutlineIcon sx={{ color: 'primary.main' }} />}
+              variant="text"
+              onClick={() => setIsCreating(true)}
+              sx={{ 
+                justifyContent: 'flex-start',
+                textAlign: 'left',
+                pl: -2,
+                ml: -1.5,
+                mr: -1,
+                mb: 2,
+                color: 'primary.main',
+                '&:hover': {
+                  bgcolor: 'action.hover'
+                }
+              }}
+            >
+              Add Task
+            </Button>
 
             <Box sx={{ 
               flex: 1,
@@ -774,46 +880,6 @@ export function TaskView({ selectedListIds, onSelectLists }: TaskViewProps) {
                 </>
               )}
             </Box>
-
-            <Menu
-              anchorEl={menuAnchorEl}
-              open={Boolean(menuAnchorEl) && activeMenuListId === listId}
-              onClose={() => {
-                setMenuAnchorEl(null);
-                setActiveMenuListId(null);
-              }}
-            >
-              <MenuItem onClick={() => {
-                setEditingListId(listId);
-                setEditingTitle(selectedList?.title || '');
-                setIsEditingList(true);
-                setMenuAnchorEl(null);
-                setActiveMenuListId(null);
-              }}>
-                <EditIcon sx={{ mr: 1, fontSize: '1.2rem' }} />
-                Rename List
-              </MenuItem>
-              <MenuItem onClick={() => {
-                setIsDeletingList(true);
-                setActiveMenuListId(listId);
-                setMenuAnchorEl(null);
-              }}>
-                <DeleteIcon sx={{ mr: 1, fontSize: '1.2rem' }} />
-                Delete List
-              </MenuItem>
-              <Divider />
-              <MenuItem 
-                onClick={() => {
-                  setIsDeleteAllDialogOpen(true);
-                  setActiveMenuListId(null);
-                  setMenuAnchorEl(null);
-                }}
-                sx={{ color: 'error.main' }}
-              >
-                <DeleteIcon sx={{ mr: 1, fontSize: '1.2rem', color: 'error.main' }} />
-                Delete Completed Tasks
-              </MenuItem>
-            </Menu>
 
             {/* Edit List Dialog */}
             <Dialog 
