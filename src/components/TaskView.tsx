@@ -21,6 +21,7 @@ import {
   Edit as EditIcon,
   KeyboardArrowDown as KeyboardArrowDownIcon,
   KeyboardArrowUp as KeyboardArrowUpIcon,
+  ListAlt as ListAltIcon,
 } from '@mui/icons-material';
 import { useState } from 'react';
 import { useApp } from '../context/AppContext';
@@ -415,12 +416,21 @@ export function TaskView({ selectedListIds }: TaskViewProps) {
       <Box
         sx={{
           display: 'flex',
+          flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
           height: '100%',
-          mt: '40vh'
+          mt: '24vh',
+          gap: 2
         }}
       >
+        <ListAltIcon 
+          sx={{ 
+            fontSize: '4rem',
+            color: 'text.secondary',
+            opacity: 0.7
+          }} 
+        />
         <Typography variant="h6" color="text.secondary">
           Select a list or create a new one
         </Typography>
